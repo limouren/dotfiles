@@ -81,6 +81,7 @@ in
     pkgs.nixpkgs-fmt
     pkgs.podman
     pkgs.poetry
+    pkgs.postgresql
     pkgs.pwgen
     pkgs.qemu
     pkgs.youtube-dl
