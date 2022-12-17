@@ -20,6 +20,10 @@ let
 in
 
 {
+  # Disable symlink behaviour to avoid conflict with `copyApplications` activation
+  # See https://github.com/nix-community/home-manager/issues/1341#issuecomment-1301555596
+  disabledModules = [ "targets/darwin/linkapps.nix" ];
+
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
   home.username = "limouren";
