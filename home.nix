@@ -69,6 +69,7 @@ in
     # pkgs.blackbox
     # pkgs.cachix
     pkgs.cocoapods
+    pkgs.dua
     pkgs.fzf
     pkgs.go
     ((drv: drv.withExtraComponents [ drv.components.gke-gcloud-auth-plugin ]) pkgs.google-cloud-sdk)
