@@ -65,6 +65,7 @@ in
   };
 
   home.packages = [
+    pkgs.asdf-vm
     pkgs.azure-cli
     # pkgs.blackbox
     # pkgs.cachix
