@@ -86,8 +86,8 @@ in
     pkgs.postgresql
     pkgs.pwgen
     pkgs.qemu
-    pkgs.youtube-dl
     pkgs.yq-go
+    pkgs.yt-dlp
     # pkgs.redis
     pkgs.ripgrep
     pkgs.ruby_3_1
