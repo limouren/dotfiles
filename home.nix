@@ -148,6 +148,13 @@ in
   ];
   programs.fish.shellInit = ''
     eval (/opt/homebrew/bin/brew shellenv)
+    # TODO: manage android studio & android sdk
+    set PATH $PATH ~/Library/Android/sdk/platform-tools
+  '';
+  programs.fish.interactiveShellInit = ''
+    if asdf current java > /dev/null 2>&1
+      . ~/.asdf/plugins/java/set-java-home.fish
+    end
   '';
 
   programs.starship.enable = true;
