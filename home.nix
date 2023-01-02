@@ -68,7 +68,7 @@ in
     pkgs.asdf-vm
     pkgs.azure-cli
     # pkgs.blackbox
-    # pkgs.cachix
+    pkgs.cachix
     pkgs.cocoapods
     pkgs.dua
     pkgs.fzf
