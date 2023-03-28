@@ -72,7 +72,10 @@ in
     pkgs.cocoapods
     pkgs.dua
     pkgs.fzf
-    pkgs.go
+    # pkgs.go
+    # pkgs.gopls
+    # pkgs.gotools
+    # pkgs.go-outline
     ((drv: drv.withExtraComponents [ drv.components.gke-gcloud-auth-plugin ]) pkgs.google-cloud-sdk)
     pkgs.kubectl
     pkgs.kubectx
