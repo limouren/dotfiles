@@ -96,6 +96,7 @@ in
     pkgs.redis
     pkgs.ripgrep
     pkgs.ruby_3_1
+    pkgs.temurin-bin
     pkgs.terraform
     pkgs.tree
     pkgs.xh
@@ -156,11 +157,6 @@ in
     eval (/opt/homebrew/bin/brew shellenv)
     # TODO: manage android studio & android sdk
     set PATH $PATH ~/Library/Android/sdk/platform-tools
-  '';
-  programs.fish.interactiveShellInit = ''
-    if asdf current java > /dev/null 2>&1
-      . ~/.asdf/plugins/java/set-java-home.fish
-    end
   '';
 
   programs.starship.enable = true;
