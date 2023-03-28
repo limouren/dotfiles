@@ -4,13 +4,14 @@ let
 
   pkgs = import
     (fetchTarball {
-      name = "nixos-unstable-2022-09-28";
-      url = "https://github.com/NixOS/nixpkgs/archive/37c2766.tar.gz";
+      name = "nixos-unstable-2023-03-27";
+      url = "https://github.com/NixOS/nixpkgs/archive/0cd51a933d9.tar.gz";
       # Hash obtained using `nix-prefetch-url --unpack <url>`
-      sha256 = "0my1hkwnihnpfk0mf61b7vzbd5kfzyprq9xmsv5jdd274jp0y2zs";
+      sha256 = "0n2fxnpz8zlk79aw2gs0gw5523rhaqc9i24kfly320830fvd79r5";
     })
     {
       config.allowBroken = true;
+      config.allowUnfree = true;
     };
 
   pass = pkgs.pass.withExtensions (ext: [ ext.pass-update ]);
