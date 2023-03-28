@@ -84,6 +84,7 @@ in
     pkgs.nodejs-16_x
     pkgs.nodejs-16_x.pkgs.yarn
     pkgs.nixpkgs-fmt
+    pkgs.overmind
     pkgs.podman
     pkgs.poetry
     pkgs.postgresql
@@ -91,9 +92,10 @@ in
     pkgs.qemu
     pkgs.yq-go
     pkgs.yt-dlp
-    # pkgs.redis
+    pkgs.redis
     pkgs.ripgrep
     pkgs.ruby_3_1
+    pkgs.terraform
     pkgs.tree
     pkgs.xh
 
