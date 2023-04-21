@@ -81,6 +81,7 @@ in
     pkgs.kubectl
     pkgs.kubectx
     pkgs.kubernetes-helm-wrapped
+    pkgs.lftp
     (pkgs.nerdfonts.override { fonts = [ "FiraCode" ]; })
     pkgs.nodejs-16_x
     pkgs.nodejs-16_x.pkgs.yarn
