@@ -96,7 +96,7 @@ in
     pkgs.redis
     pkgs.ripgrep
     pkgs.ruby_3_1
-    pkgs.temurin-bin
+    pkgs.temurin-bin-11
     pkgs.terraform
     pkgs.tree
     pkgs.xh
