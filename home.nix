@@ -156,8 +156,12 @@ in
   ];
   programs.fish.shellInit = ''
     eval (/opt/homebrew/bin/brew shellenv)
+    # https://developer.android.com/tools
     # TODO: manage android studio & android sdk
-    set PATH $PATH ~/Library/Android/sdk/platform-tools
+    set ANDROID_HOME ~/Library/Android/sdk
+    set PATH $PATH $ANDROID_HOME/tools
+    set PATH $PATH $ANDROID_HOME/tools/bin
+    set PATH $PATH $ANDROID_HOME/platform-tools
   '';
 
   programs.starship.enable = true;
