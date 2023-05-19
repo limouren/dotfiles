@@ -70,6 +70,7 @@ in
     pkgs.azure-cli
     # pkgs.blackbox
     pkgs.cachix
+    pkgs.cloudflared
     pkgs.cocoapods
     pkgs.dua
     pkgs.fzf
