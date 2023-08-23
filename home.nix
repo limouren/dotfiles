@@ -4,14 +4,17 @@ let
 
   pkgs = import
     (fetchTarball {
-      name = "nixos-unstable-2023-03-27";
-      url = "https://github.com/NixOS/nixpkgs/archive/0cd51a933d9.tar.gz";
+      name = "nixos-unstable-2023-08-23";
+      url = "https://github.com/NixOS/nixpkgs/archive/9d757ec498666cc1dcc6f2be26db4fd3e1e9ab37.tar.gz";
       # Hash obtained using `nix-prefetch-url --unpack <url>`
-      sha256 = "0n2fxnpz8zlk79aw2gs0gw5523rhaqc9i24kfly320830fvd79r5";
+      sha256 = "0m6zkdrm72iga30brnkni0j5zs3zwp9qc95xl9nyh2kq46kkd6fc";
     })
     {
       config.allowBroken = true;
       config.allowUnfree = true;
+      config.permittedInsecurePackages = [
+        "nodejs-16.20.2"
+      ];
     };
 
   devenv = (import (fetchTarball https://github.com/cachix/devenv/archive/v0.6.2.tar.gz)).default;
