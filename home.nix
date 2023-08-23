@@ -14,6 +14,8 @@ let
       config.allowUnfree = true;
     };
 
+  devenv = (import (fetchTarball https://github.com/cachix/devenv/archive/v0.6.2.tar.gz)).default;
+
   pass = pkgs.pass.withExtensions (ext: [ ext.pass-update ]);
 
   pinentry = pkgs.pinentry_mac;
@@ -72,7 +74,9 @@ in
     pkgs.cachix
     pkgs.cloudflared
     pkgs.cocoapods
+    devenv
     pkgs.dua
+    pkgs.ffmpeg_5-headless
     pkgs.fzf
     # pkgs.go
     # pkgs.gopls
@@ -94,6 +98,7 @@ in
     pkgs.pwgen
     pkgs.qemu
     pkgs.yq-go
+    pkgs.python311
     pkgs.yt-dlp
     pkgs.redis
     pkgs.ripgrep
@@ -110,8 +115,6 @@ in
     pass
     pinentry
     pkgs.passff-host
-
-    pkgs.nodePackages.pnpm
   ];
 
   # This value determines the Home Manager release that your
