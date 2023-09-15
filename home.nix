@@ -93,6 +93,7 @@ in
     (pkgs.nerdfonts.override { fonts = [ "FiraCode" ]; })
     pkgs.nodejs-16_x
     pkgs.nodejs-16_x.pkgs.yarn
+    pkgs.nodejs-16_x.pkgs.firebase-tools
     pkgs.nixpkgs-fmt
     pkgs.overmind
     pkgs.podman
