@@ -12,9 +12,6 @@ let
     {
       config.allowBroken = true;
       config.allowUnfree = true;
-      config.permittedInsecurePackages = [
-        "nodejs-16.20.2"
-      ];
     };
 
   devenv = (import (fetchTarball https://github.com/cachix/devenv/archive/v0.6.2.tar.gz)).default;
@@ -91,9 +88,9 @@ in
     pkgs.kubernetes-helm-wrapped
     pkgs.lftp
     (pkgs.nerdfonts.override { fonts = [ "FiraCode" ]; })
-    pkgs.nodejs-16_x
-    pkgs.nodejs-16_x.pkgs.yarn
-    pkgs.nodejs-16_x.pkgs.firebase-tools
+    pkgs.nodejs-18_x
+    pkgs.nodejs-18_x.pkgs.yarn
+    pkgs.nodejs-18_x.pkgs.firebase-tools
     pkgs.nixpkgs-fmt
     pkgs.overmind
     pkgs.podman
