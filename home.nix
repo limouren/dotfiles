@@ -16,7 +16,10 @@ let
 
   devenv = (import (fetchTarball https://github.com/cachix/devenv/archive/v0.6.2.tar.gz)).default;
 
-  pass = pkgs.pass.withExtensions (ext: [ ext.pass-update ]);
+  pass = pkgs.pass.withExtensions (ext: [
+    ext.pass-update
+    ext.pass-otp
+  ]);
 
   pinentry = pkgs.pinentry_mac;
 
