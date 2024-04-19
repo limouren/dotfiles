@@ -4,10 +4,10 @@ let
 
   pkgs = import
     (fetchTarball {
-      name = "nixos-unstable-2024-01-10";
-      url = "https://github.com/NixOS/nixpkgs/archive/4b0751bbc680.tar.gz";
+      name = "nixos-unstable-2024-04-19";
+      url = "https://github.com/NixOS/nixpkgs/archive/2e359fb3162c.tar.gz";
       # Hash obtained using `nix-prefetch-url --unpack <url>`
-      sha256 = "1qaaw06l6dv8k5gmiipc11ry9mf8izh4rwwnlz3ny72jczxf9idd";
+      sha256 = "1r5f281zrnpviihp014x149yyr5sxgp1gapi7jczbk5mgyxwbf6r";
     })
     {
       config.allowBroken = true;
