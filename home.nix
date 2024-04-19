@@ -73,7 +73,8 @@ in
   home.packages = [
     pkgs.asdf-vm
     pkgs.azure-cli
-    # pkgs.blackbox
+    pkgs.blackbox
+    pkgs.btop
     pkgs.bun
     pkgs.cachix
     pkgs.cloudflared
@@ -96,6 +97,7 @@ in
     pkgs.nodejs-18_x.pkgs.yarn
     pkgs.nodejs-18_x.pkgs.firebase-tools
     pkgs.nixpkgs-fmt
+    pkgs.ollama
     pkgs.overmind
     pkgs.podman
     pkgs.poetry
