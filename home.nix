@@ -94,8 +94,8 @@ in
     pkgs.lftp
     (pkgs.nerdfonts.override { fonts = [ "FiraCode" ]; })
     pkgs.nodejs-18_x
-    pkgs.nodejs-18_x.pkgs.yarn
     pkgs.nodejs-18_x.pkgs.firebase-tools
+    pkgs.nodejs-18_x.pkgs.yarn
     pkgs.nixpkgs-fmt
     pkgs.ollama
     pkgs.overmind
@@ -113,6 +113,7 @@ in
     pkgs.temurin-bin-11
     pkgs.terraform
     pkgs.tree
+    pkgs.unrar
     pkgs.xh
 
     # gpg
