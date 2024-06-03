@@ -91,6 +91,7 @@ in
     pkgs.kubectl
     pkgs.kubectx
     pkgs.kubernetes-helm-wrapped
+    pkgs.idb-companion
     pkgs.lftp
     (pkgs.nerdfonts.override { fonts = [ "FiraCode" ]; })
     pkgs.nodejs-18_x
