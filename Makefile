@@ -20,3 +20,6 @@ backup:
 .PHONY: restore
 restore:
 	tar xzf $(BACKUP_DIR).tar.gz
+
+	chmod 700 $(BACKUP_DIR)/$(GPG_DIRNAME)
+	chmod 700 $(BACKUP_DIR)/$(SSH_DIRNAME)
