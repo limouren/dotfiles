@@ -14,8 +14,6 @@ let
       config.allowUnfree = true;
     };
 
-  devenv = (import (fetchTarball https://github.com/cachix/devenv/archive/v0.6.2.tar.gz)).default;
-
   pass = pkgs.pass.withExtensions (ext: [
     ext.pass-update
     ext.pass-otp
@@ -79,7 +77,6 @@ in
     pkgs.cachix
     pkgs.cloudflared
     pkgs.cocoapods
-    devenv
     pkgs.dua
     pkgs.ffmpeg_5-headless
     pkgs.fzf
@@ -94,10 +91,11 @@ in
     pkgs.idb-companion
     pkgs.lftp
     (pkgs.nerdfonts.override { fonts = [ "FiraCode" ]; })
-    pkgs.nodejs-18_x
-    pkgs.nodejs-18_x.pkgs.firebase-tools
-    pkgs.nodejs-18_x.pkgs.yarn
+    pkgs.nodejs
+    pkgs.nodejs.pkgs.firebase-tools
+    pkgs.nodejs.pkgs.yarn
     pkgs.nixpkgs-fmt
+    pkgs.nurl
     pkgs.ollama
     pkgs.overmind
     pkgs.podman
@@ -181,7 +179,11 @@ in
   programs.starship.enableFishIntegration = true;
   home.file.".config/starship.toml".source = ./starship.toml;
 
-  programs.git.enable = true;
+  programs.git = {
+    enable = true;
+    userEmail = "limouren@gmail.com";
+    userName = "Kenji Pa";
+  };
 
   programs.direnv.enable = true;
   programs.direnv.nix-direnv.enable = true;
