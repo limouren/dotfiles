@@ -166,7 +166,12 @@ in
     }
   ];
   programs.fish.shellInit = ''
-    eval (/opt/homebrew/bin/brew shellenv)
+    if test $(uname -m) = "x86_64"
+        eval (/usr/local/bin/brew shellenv)
+    else
+        eval (/opt/homebrew/bin/brew shellenv)
+    end
+
     # https://developer.android.com/tools
     # TODO: manage android studio & android sdk
     set ANDROID_HOME ~/Library/Android/sdk
