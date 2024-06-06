@@ -109,6 +109,7 @@ in
     pkgs.redis
     pkgs.ripgrep
     pkgs.ruby_3_1
+    pkgs.rye
     pkgs.temurin-bin-11
     pkgs.terraform
     pkgs.tree
@@ -192,6 +193,11 @@ in
 
   programs.direnv.enable = true;
   programs.direnv.nix-direnv.enable = true;
+
+  programs.vim = {
+    enable = true;
+    defaultEditor = true;
+  };
 
   nixpkgs.config.allowBroken = true;
 }
