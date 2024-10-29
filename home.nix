@@ -6,7 +6,6 @@ let
     (fetchTarball {
       name = "nixos-unstable-2024-10-29";
       url = "https://github.com/NixOS/nixpkgs/archive/86e78d3d2084ff87688da662cf78c2af085d8e73.tar.gz";
-      # Hash obtained using `nix-prefetch-url --unpack <url>`
       sha256 = "01j4f1v7kdymy0lh0rifh89q85gdn47cz9m4dhx8wzv115jd2qvr";
     })
     {
@@ -21,41 +20,23 @@ let
 
   pinentry = pkgs.pinentry_mac;
 
+  mac-app-util-src = pkgs.fetchFromGitHub {
+    owner = "hraban";
+    repo = "mac-app-util";
+    rev = "9c6bbe2a6a7ec647d03f64f0fadb874284f59eac";
+    hash = "sha256-BqkwZ2mvzn+COdfIuzllSzWmiaBwQktt4sw9slfwM70=";
+  };
+  mac-app-util = (pkgs.callPackage mac-app-util-src { });
+
 in
 
 {
-  # Disable symlink behaviour to avoid conflict with `copyApplications` activation
-  # See https://github.com/nix-community/home-manager/issues/1341#issuecomment-1301555596
-  disabledModules = [ "targets/darwin/linkapps.nix" ];
+  imports = [ mac-app-util.homeManagerModules.default ];
 
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
   home.username = "limouren";
   home.homeDirectory = "/Users/limouren";
-
-  home.activation = {
-    # See https://github.com/nix-community/home-manager/issues/1341#issuecomment-778820334
-    copyApplications =
-      let
-        apps = pkgs.buildEnv {
-          name = "home-manager-applications";
-          paths = config.home.packages;
-          pathsToLink = "/Applications";
-        };
-      in
-      lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        baseDir="$HOME/Applications/Home Manager Apps"
-        if [ -d "$baseDir" ]; then
-          rm -rf "$baseDir"
-        fi
-        mkdir -p "$baseDir"
-        for appFile in ${apps}/Applications/*; do
-          target="$baseDir/$(basename "$appFile")"
-          $DRY_RUN_CMD cp ''${VERBOSE_ARG:+-v} -fHRL "$appFile" "$baseDir"
-          $DRY_RUN_CMD chmod ''${VERBOSE_ARG:+-v} -R +w "$target"
-        done
-      '';
-  };
 
   home.file.gpg-agent = {
     target = ".gnupg/gpg-agent.conf";
