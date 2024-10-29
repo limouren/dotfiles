@@ -4,10 +4,10 @@ let
 
   pkgs = import
     (fetchTarball {
-      name = "nixos-unstable-2024-04-19";
-      url = "https://github.com/NixOS/nixpkgs/archive/2e359fb3162c.tar.gz";
+      name = "nixos-unstable-2024-10-29";
+      url = "https://github.com/NixOS/nixpkgs/archive/86e78d3d2084ff87688da662cf78c2af085d8e73.tar.gz";
       # Hash obtained using `nix-prefetch-url --unpack <url>`
-      sha256 = "1r5f281zrnpviihp014x149yyr5sxgp1gapi7jczbk5mgyxwbf6r";
+      sha256 = "01j4f1v7kdymy0lh0rifh89q85gdn47cz9m4dhx8wzv115jd2qvr";
     })
     {
       config.allowBroken = true;
@@ -70,7 +70,6 @@ in
 
   home.packages = [
     pkgs.asdf-vm
-    pkgs.azure-cli
     pkgs.blackbox
     pkgs.btop
     pkgs.bun
@@ -78,7 +77,6 @@ in
     pkgs.cloudflared
     pkgs.cocoapods
     pkgs.dua
-    pkgs.ffmpeg_5-headless
     pkgs.fzf
     # pkgs.go
     # pkgs.gopls
@@ -96,7 +94,6 @@ in
     pkgs.nodejs.pkgs.yarn
     pkgs.nixpkgs-fmt
     pkgs.nurl
-    pkgs.ollama
     pkgs.overmind
     pkgs.podman
     pkgs.poetry
