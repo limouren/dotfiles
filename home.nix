@@ -4,9 +4,9 @@ let
 
   pkgs = import
     (fetchTarball {
-      name = "nixos-unstable-2024-10-29";
-      url = "https://github.com/NixOS/nixpkgs/archive/86e78d3d2084ff87688da662cf78c2af085d8e73.tar.gz";
-      sha256 = "01j4f1v7kdymy0lh0rifh89q85gdn47cz9m4dhx8wzv115jd2qvr";
+      name = "nixos-unstable-2025-02-11";
+      url = "https://github.com/NixOS/nixpkgs/archive/b2243f41e860ac85c0b446eadc6930359b294e79.tar.gz";
+      sha256 = "0bhibarcx56j1szd40ygv1nm78kap3yr4s24p5cv1kdiy4hsb21k";
     })
     {
       config.allowBroken = true;
@@ -69,11 +69,10 @@ in
     pkgs.kubernetes-helm-wrapped
     pkgs.idb-companion
     pkgs.lftp
-    (pkgs.nerdfonts.override { fonts = [ "FiraCode" ]; })
     pkgs.nodejs
     pkgs.nodejs.pkgs.firebase-tools
     pkgs.nodejs.pkgs.yarn
-    pkgs.nixpkgs-fmt
+    pkgs.nixfmt-rfc-style
     pkgs.nurl
     pkgs.overmind
     pkgs.podman
@@ -92,6 +91,7 @@ in
     pkgs.terraform
     pkgs.tree
     pkgs.unrar
+    pkgs.uv
     pkgs.xh
 
     # gpg
