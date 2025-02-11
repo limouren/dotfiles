@@ -2,16 +2,17 @@
 
 let
 
-  pkgs = import
-    (fetchTarball {
-      name = "nixos-unstable-2025-02-11";
-      url = "https://github.com/NixOS/nixpkgs/archive/b2243f41e860ac85c0b446eadc6930359b294e79.tar.gz";
-      sha256 = "0bhibarcx56j1szd40ygv1nm78kap3yr4s24p5cv1kdiy4hsb21k";
-    })
-    {
-      config.allowBroken = true;
-      config.allowUnfree = true;
-    };
+  pkgs =
+    import
+      (fetchTarball {
+        name = "nixos-unstable-2025-02-11";
+        url = "https://github.com/NixOS/nixpkgs/archive/b2243f41e860ac85c0b446eadc6930359b294e79.tar.gz";
+        sha256 = "0bhibarcx56j1szd40ygv1nm78kap3yr4s24p5cv1kdiy4hsb21k";
+      })
+      {
+        config.allowBroken = true;
+        config.allowUnfree = true;
+      };
 
   pass = pkgs.pass.withExtensions (ext: [
     ext.pass-update
@@ -135,13 +136,12 @@ in
     {
       # https://github.com/lilyball/nix-env.fish
       name = "nix-env.fish";
-      src = pkgs.fetchFromGitHub
-        {
-          owner = "lilyball";
-          repo = "nix-env.fish";
-          rev = "7b65bd228429e852c8fdfa07601159130a818cfa";
-          sha256 = "069ybzdj29s320wzdyxqjhmpm9ir5815yx6n522adav0z2nz8vs4";
-        };
+      src = pkgs.fetchFromGitHub {
+        owner = "lilyball";
+        repo = "nix-env.fish";
+        rev = "7b65bd228429e852c8fdfa07601159130a818cfa";
+        sha256 = "069ybzdj29s320wzdyxqjhmpm9ir5815yx6n522adav0z2nz8vs4";
+      };
     }
   ];
   programs.fish.shellInit = ''
