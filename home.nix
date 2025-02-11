@@ -118,7 +118,7 @@ in
   programs.home-manager.enable = true;
 
   programs.kitty.enable = true;
-  programs.kitty.theme = "Ayu Mirage";
+  programs.kitty.themeFile = "ayu_mirage";
   programs.kitty.font = {
     name = "FiraCode Nerd Font";
     size = 14;
