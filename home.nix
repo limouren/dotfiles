@@ -58,6 +58,7 @@ in
     pkgs.cachix
     pkgs.cloudflared
     pkgs.cocoapods
+    pkgs.devenv
     pkgs.dua
     pkgs.fzf
     # pkgs.go
