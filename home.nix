@@ -118,19 +118,19 @@ in
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
-  programs.kitty.enable = true;
-  programs.kitty.themeFile = "ayu_mirage";
-  programs.kitty.font = {
-    name = "FiraCode Nerd Font";
-    size = 14;
-  };
-  programs.kitty.keybindings = {
-    "cmd+t" = "new_tab_with_cwd";
-  };
-  programs.kitty.settings = {
-    shell_integration = "enabled";
-    confirm_os_window_close = -1;
-  };
+  # programs.kitty.enable = true;
+  # programs.kitty.themeFile = "ayu_mirage";
+  # programs.kitty.font = {
+  #   name = "FiraCode Nerd Font";
+  #   size = 14;
+  # };
+  # programs.kitty.keybindings = {
+  #   "cmd+t" = "new_tab_with_cwd";
+  # };
+  # programs.kitty.settings = {
+  #   shell_integration = "enabled";
+  #   confirm_os_window_close = -1;
+  # };
 
   programs.fish.enable = true;
   programs.fish.plugins = [
