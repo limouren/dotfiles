@@ -158,6 +158,9 @@ in
     set PATH $PATH $ANDROID_HOME/tools
     set PATH $PATH $ANDROID_HOME/tools/bin
     set PATH $PATH $ANDROID_HOME/platform-tools
+
+    # Sublime Text
+    set PATH $PATH '/Applications/Sublime Text.app/Contents/SharedSupport/bin'
   '';
 
   programs.starship.enable = true;
