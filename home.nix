@@ -168,6 +168,13 @@ in
     enable = true;
     userEmail = "limouren@gmail.com";
     userName = "Kenji Pa";
+    extraConfig = {
+      url = {
+        "https://" = {
+          insteadof = "git://";
+        };
+      };
+    };
   };
 
   programs.direnv.enable = true;
