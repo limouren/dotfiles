@@ -178,6 +178,8 @@ in
         };
       };
     };
+
+    riff.enable = true;
   };
 
   programs.direnv.enable = true;
