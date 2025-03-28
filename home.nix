@@ -95,6 +95,7 @@ in
     pkgs.unrar
     pkgs.uv
     pkgs.xh
+    pkgs.zbar
 
     # gpg
     pkgs.gnupg
