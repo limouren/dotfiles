@@ -79,7 +79,7 @@ in
     pkgs.overmind
     pkgs.podman
     pkgs.poetry
-    pkgs.postgresql_14
+    pkgs.postgresql
     pkgs.pwgen
     pkgs.qemu
     pkgs.yq-go
