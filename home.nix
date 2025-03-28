@@ -104,6 +104,9 @@ in
     pass
     pinentry
     pkgs.passff-host
+
+    pkgs.rustc
+    pkgs.cargo
   ];
 
   # This value determines the Home Manager release that your
