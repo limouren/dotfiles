@@ -5,9 +5,9 @@ let
   pkgs =
     import
       (fetchTarball {
-        name = "nixos-unstable-2025-02-11";
-        url = "https://github.com/NixOS/nixpkgs/archive/b2243f41e860ac85c0b446eadc6930359b294e79.tar.gz";
-        sha256 = "0bhibarcx56j1szd40ygv1nm78kap3yr4s24p5cv1kdiy4hsb21k";
+        name = "nixos-unstable-2025-05-02";
+        url = "https://github.com/NixOS/nixpkgs/archive/00afadaba4cf0842c41997cabe75e3b04e232657.tar.gz";
+        sha256 = "bFhuTA7KxbLfK85ioli17RhXraq1jj21ih8WS2LTwHg=";
       })
       {
         config.allowBroken = true;
