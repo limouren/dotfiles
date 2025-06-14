@@ -45,6 +45,7 @@ in
       pinentry-program ${pinentry}/${pinentry.binaryPath}
     '';
   };
+  home.file.".lnav/formats/installed/logcat_log.json".source = ./lnav-logcat.json;
   home.file.passff-host = {
     target = "Library/Application Support/Mozilla/NativeMessagingHosts/passff.json";
     source = "${pkgs.passff-host}/share/passff-host/passff.json";
@@ -74,6 +75,7 @@ in
     pkgs.kubernetes-helm-wrapped
     pkgs.idb-companion
     pkgs.lftp
+    pkgs.lnav
     pkgs.nodejs
     pkgs.nodejs.pkgs.firebase-tools
     pkgs.nodejs.pkgs.yarn
