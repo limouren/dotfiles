@@ -5,9 +5,9 @@ let
   pkgs =
     import
       (fetchTarball {
-        name = "nixos-unstable-2025-05-02";
-        url = "https://github.com/NixOS/nixpkgs/archive/00afadaba4cf0842c41997cabe75e3b04e232657.tar.gz";
-        sha256 = "bFhuTA7KxbLfK85ioli17RhXraq1jj21ih8WS2LTwHg=";
+        name = "nixos-unstable-2025-05-21";
+        url = "https://github.com/NixOS/nixpkgs/archive/2f9173bde1d3fbf1ad26ff6d52f952f9e9da52ea.tar.gz";
+        sha256 = "0jad44scxhp2vfh2syyz5wbwnpk4drh2dpw37kpvkq70xr1cax9n";
       })
       {
         config.allowBroken = true;
@@ -61,11 +61,13 @@ in
     pkgs.colima
     pkgs.devenv
     pkgs.dua
+    pkgs.ffmpeg
     pkgs.fzf
     # pkgs.go
     # pkgs.gopls
     # pkgs.gotools
     # pkgs.go-outline
+    pkgs.google-clasp
     ((drv: drv.withExtraComponents [ drv.components.gke-gcloud-auth-plugin ]) pkgs.google-cloud-sdk)
     pkgs.kubectl
     pkgs.kubectx
