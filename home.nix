@@ -94,7 +94,7 @@ in
     pkgs.ripgrep
     pkgs.ruby_3_1
     pkgs.rye
-    pkgs.temurin-bin-11
+    pkgs.temurin-bin
     pkgs.terraform
     pkgs.tree
     pkgs.unrar
