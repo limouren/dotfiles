@@ -162,6 +162,7 @@ in
     # https://developer.android.com/tools
     # TODO: manage android studio & android sdk
     set ANDROID_HOME ~/Library/Android/sdk
+    set PATH $PATH $ANDROID_HOME/emulator
     set PATH $PATH $ANDROID_HOME/tools
     set PATH $PATH $ANDROID_HOME/tools/bin
     set PATH $PATH $ANDROID_HOME/platform-tools
