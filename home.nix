@@ -14,6 +14,15 @@ let
         config.allowUnfree = true;
       };
 
+  claude-version = "1.0.31";
+  claude-code = pkgs.claude-code.overrideAttrs (oldAttrs: {
+    version = claude-version;
+    src = pkgs.fetchzip {
+      url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${claude-version}.tgz";
+      hash = "sha256-DrjR1LHnLXk2cW3zXO1jxc3octITMq6t28E2KJHBxZE=";
+    };
+  });
+
   pass = pkgs.pass.withExtensions (ext: [
     ext.pass-update
     ext.pass-otp
@@ -57,6 +66,7 @@ in
     pkgs.btop
     pkgs.bun
     pkgs.cachix
+    claude-code
     pkgs.cloudflared
     pkgs.cocoapods
     pkgs.colima
