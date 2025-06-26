@@ -1,0 +1,79 @@
+name: Update Claude Code
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    # Allow manual triggering
+
+jobs:
+  update-claude-code:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Install Nix
+        uses: cachix/install-nix-action@v25
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq curl
+      
+      - name: Make update script executable
+        run: chmod +x scripts/update-claude-code.sh
+      
+      - name: Check for updates
+        id: check-update
+        run: |
+          # Run in dry-run mode to check if update is needed
+          DRY_RUN=true ./scripts/update-claude-code.sh > update-output.log 2>&1 || true
+          
+          if grep -q "New version available" update-output.log; then
+            echo "update-needed=true" >> $GITHUB_OUTPUT
+            NEW_VERSION=$(grep "Latest version:" update-output.log | cut -d' ' -f3)
+            echo "new-version=$NEW_VERSION" >> $GITHUB_OUTPUT
+            echo "Update needed to version: $NEW_VERSION"
+          else
+            echo "update-needed=false" >> $GITHUB_OUTPUT
+            echo "No update needed"
+          fi
+          
+          cat update-output.log
+      
+      - name: Apply updates
+        if: steps.check-update.outputs.update-needed == 'true'
+        run: |
+          # Apply the actual update (without home-manager rebuild in CI)
+          DRY_RUN=false ./scripts/update-claude-code.sh || true
+      
+      - name: Commit and push changes
+        if: steps.check-update.outputs.update-needed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add home.nix
+          git commit -m "Update Claude Code to version ${{ steps.check-update.outputs.new-version }}
+
+          - Updated claude-version in home.nix
+          - Updated package hash for the new version
+          
+          Auto-updated by update-claude-code workflow"
+          git push
+      
+      - name: Output results
+        run: |
+          echo "Update check completed"
+          if [[ "${{ steps.check-update.outputs.update-needed }}" == "true" ]]; then
+            echo "✅ Update applied and pushed to repository"
+          else
+            echo "ℹ️ No update needed"
+          fi
