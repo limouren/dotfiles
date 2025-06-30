@@ -14,18 +14,19 @@ let
         config.allowUnfree = true;
       };
 
-  claude-version = "1.0.35";
-  claude-code = pkgs.claude-code.overrideAttrs (oldAttrs: {
-    version = claude-version;
-    src = pkgs.fetchzip {
-      url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${claude-version}.tgz";
-      hash = "sha256-Lt79XxHrgy6rPAHBf1QtwjsKnrZmsKFeVFOvHwN4aOY=";
-    };
-  });
+  npm-tools-config = builtins.fromTOML (builtins.readFile ./npm-tools.toml);
 
-  gemini-cli = pkgs.writeShellScriptBin "gemini" ''
-    exec ${pkgs.nodejs}/bin/npx @google/gemini-cli@0.1.7 "$@"
-  '';
+  # Generate npm tools dynamically from TOML config
+  npm-tools = builtins.listToAttrs (
+    builtins.map (toolName: {
+      name = toolName;
+      value = pkgs.writeShellScriptBin npm-tools-config.${toolName}.binary_name ''
+        exec ${pkgs.nodejs}/bin/npx ${npm-tools-config.${toolName}.npm_package}@${
+          npm-tools-config.${toolName}.version
+        } "$@"
+      '';
+    }) (builtins.attrNames npm-tools-config)
+  );
 
   pass = pkgs.pass.withExtensions (ext: [
     ext.pass-update
@@ -70,8 +71,6 @@ in
     pkgs.btop
     pkgs.bun
     pkgs.cachix
-    claude-code
-    gemini-cli
     pkgs.cloudflared
     pkgs.cocoapods
     pkgs.colima
@@ -101,14 +100,15 @@ in
     pkgs.poetry
     pkgs.postgresql
     pkgs.pwgen
+    pkgs.python312
     pkgs.qemu
     pkgs.yq-go
-    pkgs.python312
     pkgs.yt-dlp
     pkgs.redis
     pkgs.ripgrep
     pkgs.ruby_3_1
     pkgs.rye
+    pkgs.shfmt
     pkgs.temurin-bin-17
     pkgs.terraform
     pkgs.tree
@@ -127,7 +127,7 @@ in
 
     pkgs.rustc
     pkgs.cargo
-  ];
+  ] ++ (builtins.attrValues npm-tools);
 
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage

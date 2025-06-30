@@ -1,4 +1,4 @@
-name: Update Claude Code
+name: Update NPM Tools
 
 on:
   schedule:
@@ -8,7 +8,7 @@ on:
     # Allow manual triggering
 
 jobs:
-  update-claude-code:
+  update-npm-tools:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -32,17 +32,17 @@ jobs:
           nix-channel --update
           nix-shell '<home-manager>' -A install
       
-      - name: Install jq
+      - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y jq curl
       
       - name: Make update script executable
-        run: chmod +x scripts/update-claude-code.sh
+        run: chmod +x scripts/update-npm-tools.sh
       
       - name: Check for updates
         id: check-update
         run: |
           # Run in dry-run mode to check if update is needed
-          DRY_RUN=true ./scripts/update-claude-code.sh > update-output.log 2>&1 || true
+          DRY_RUN=true ./scripts/update-npm-tools.sh > update-output.log 2>&1 || true
           
           if grep -q "New version available" update-output.log; then
             echo "update-needed=true" >> $GITHUB_OUTPUT
@@ -60,20 +60,19 @@ jobs:
         if: steps.check-update.outputs.update-needed == 'true'
         run: |
           # Apply the actual update
-          ./scripts/update-claude-code.sh
+          ./scripts/update-npm-tools.sh
       
       - name: Commit and push changes
         if: steps.check-update.outputs.update-needed == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add home.nix
-          git commit -m "Update Claude Code to version ${{ steps.check-update.outputs.new-version }}
+          git add npm-tools.toml
+          git commit -m "Update NPM tools
 
-          - Updated claude-version in home.nix
-          - Updated package hash for the new version
+          - Updated package versions in npm-tools.toml
           
-          Auto-updated by update-claude-code workflow"
+          Auto-updated by update-npm-tools workflow"
           git push
       
       - name: Output results
