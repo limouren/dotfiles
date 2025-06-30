@@ -23,6 +23,10 @@ let
     };
   });
 
+  gemini-cli = pkgs.writeShellScriptBin "gemini" ''
+    exec ${pkgs.nodejs}/bin/npx @google/gemini-cli@0.1.7 "$@"
+  '';
+
   pass = pkgs.pass.withExtensions (ext: [
     ext.pass-update
     ext.pass-otp
@@ -67,6 +71,7 @@ in
     pkgs.bun
     pkgs.cachix
     claude-code
+    gemini-cli
     pkgs.cloudflared
     pkgs.cocoapods
     pkgs.colima
