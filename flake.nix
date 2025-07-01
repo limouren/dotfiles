@@ -18,18 +18,26 @@
     };
   };
 
-  outputs = { nixpkgs, home-manager, mac-app-util, nix-env-fish, ... }:
+  outputs =
+    {
+      nixpkgs,
+      home-manager,
+      mac-app-util,
+      nix-env-fish,
+      ...
+    }:
     let
       system = "aarch64-darwin";
       pkgs = nixpkgs.legacyPackages.${system};
-    in {
+    in
+    {
       homeConfigurations."limouren" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
 
         # Specify your home configuration modules here, for example,
         # the path to your home.nix.
-        modules = [ 
-          ./home.nix 
+        modules = [
+          ./home.nix
           mac-app-util.homeManagerModules.default
         ];
 
