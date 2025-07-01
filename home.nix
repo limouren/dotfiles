@@ -1,18 +1,6 @@
-{ config, lib, ... }:
+{ config, lib, pkgs, nix-env-fish, ... }:
 
 let
-
-  pkgs =
-    import
-      (fetchTarball {
-        name = "nixos-unstable-2025-05-21";
-        url = "https://github.com/NixOS/nixpkgs/archive/2f9173bde1d3fbf1ad26ff6d52f952f9e9da52ea.tar.gz";
-        sha256 = "0jad44scxhp2vfh2syyz5wbwnpk4drh2dpw37kpvkq70xr1cax9n";
-      })
-      {
-        config.allowBroken = true;
-        config.allowUnfree = true;
-      };
 
   npm-tools-config = builtins.fromTOML (builtins.readFile ./npm-tools.toml);
 
@@ -35,18 +23,10 @@ let
 
   pinentry = pkgs.pinentry_mac;
 
-  mac-app-util-src = pkgs.fetchFromGitHub {
-    owner = "hraban";
-    repo = "mac-app-util";
-    rev = "9c6bbe2a6a7ec647d03f64f0fadb874284f59eac";
-    hash = "sha256-BqkwZ2mvzn+COdfIuzllSzWmiaBwQktt4sw9slfwM70=";
-  };
-  mac-app-util = (pkgs.callPackage mac-app-util-src { });
 
 in
 
 {
-  imports = [ mac-app-util.homeManagerModules.default ];
 
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
@@ -161,12 +141,7 @@ in
     {
       # https://github.com/lilyball/nix-env.fish
       name = "nix-env.fish";
-      src = pkgs.fetchFromGitHub {
-        owner = "lilyball";
-        repo = "nix-env.fish";
-        rev = "7b65bd228429e852c8fdfa07601159130a818cfa";
-        sha256 = "069ybzdj29s320wzdyxqjhmpm9ir5815yx6n522adav0z2nz8vs4";
-      };
+      src = nix-env-fish;
     }
   ];
   programs.fish.shellInit = ''
@@ -216,4 +191,5 @@ in
   };
 
   nixpkgs.config.allowBroken = true;
+  nixpkgs.config.allowUnfree = true;
 }
