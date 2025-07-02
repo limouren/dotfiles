@@ -1,9 +1,9 @@
 [claude-code]
-version = "1.0.38"
+version = "1.0.40"
 npm_package = "@anthropic-ai/claude-code"
 binary_name = "claude"
 
 [gemini-cli]
-version = "0.1.7"
+version = "0.1.9"
 npm_package = "@google/gemini-cli"
 binary_name = "gemini"
