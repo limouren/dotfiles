@@ -10,18 +10,13 @@ let
 
   npm-tools-config = builtins.fromTOML (builtins.readFile ./npm-tools.toml);
 
-  # Import gemini-cli latest override
-  gemini-cli-latest = import ./npm-tools/gemini-cli.nix { inherit lib pkgs; npmTools = npm-tools-config; };
-
-  # Generate npm tools dynamically from TOML config
-  npm-tools = builtins.listToAttrs (
+  npm-tool-overrides = builtins.listToAttrs (
     builtins.map (toolName: {
-      name = toolName;
-      value = pkgs.writeShellScriptBin npm-tools-config.${toolName}.binary_name ''
-        exec ${pkgs.nodejs}/bin/npx ${npm-tools-config.${toolName}.npm_package}@${
-          npm-tools-config.${toolName}.version
-        } "$@"
-      '';
+      name = "${toolName}-latest";
+      value = import ./npm-tools/${toolName}.nix {
+        inherit lib pkgs;
+        npmTools = npm-tools-config;
+      };
     }) (builtins.attrNames npm-tools-config)
   );
 
@@ -115,10 +110,7 @@ in
 
     pkgs.rustc
     pkgs.cargo
-
-    # AI tools
-    gemini-cli-latest # version 0.1.9 using mkDerivation approach
-  ] ++ (builtins.attrValues npm-tools);
+  ] ++ (builtins.attrValues npm-tool-overrides);
 
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage

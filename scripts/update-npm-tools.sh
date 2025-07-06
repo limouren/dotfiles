@@ -10,9 +10,9 @@ log() {
 
 get_package_info() {
     local package="$1"
-    local version npm_package
+    local version src_type src_hash npm_deps_hash npm_package github_repo
 
-    # Extract version and npm_package from TOML using sed/grep
+    # Extract fields from TOML using sed/grep
     if [[ -f "$TOML_FILE" ]] && grep -q "^\[$package\]" "$TOML_FILE"; then
         # Get the section for this package
         local section_start section_end
@@ -26,12 +26,16 @@ get_package_info() {
             section_end=$((section_end + 1))
         fi
 
-        # Extract version and npm_package from the section
+        # Extract fields from the section
         version=$(sed -n "${section_start},${section_end}p" "$TOML_FILE" | grep "^version = " | sed 's/version = "\(.*\)"/\1/')
+        src_type=$(sed -n "${section_start},${section_end}p" "$TOML_FILE" | grep "^src_type = " | sed 's/src_type = "\(.*\)"/\1/')
+        src_hash=$(sed -n "${section_start},${section_end}p" "$TOML_FILE" | grep "^src_hash = " | sed 's/src_hash = "\(.*\)"/\1/')
+        npm_deps_hash=$(sed -n "${section_start},${section_end}p" "$TOML_FILE" | grep "^npm_deps_hash = " | sed 's/npm_deps_hash = "\(.*\)"/\1/')
         npm_package=$(sed -n "${section_start},${section_end}p" "$TOML_FILE" | grep "^npm_package = " | sed 's/npm_package = "\(.*\)"/\1/')
+        github_repo=$(sed -n "${section_start},${section_end}p" "$TOML_FILE" | grep "^github_repo = " | sed 's/github_repo = "\(.*\)"/\1/')
     fi
 
-    echo -e "${version:-}\t${npm_package:-}"
+    echo -e "${version:-}\t${src_type:-}\t${src_hash:-}\t${npm_deps_hash:-}\t${npm_package:-}\t${github_repo:-}"
 }
 
 get_latest_version() {
@@ -40,20 +44,228 @@ get_latest_version() {
         jq -r '.["dist-tags"].latest'
 }
 
+get_latest_github_version() {
+    local github_repo="$1"
+
+    local api_url="https://api.github.com/repos/${github_repo}/releases"
+    local response=$(curl -s "$api_url")
+
+    # Get latest stable release (exclude prereleases and nightly/alpha/beta/rc releases)
+    echo "$response" | jq -r '.[] | select(.prerelease == false) | .tag_name' | grep -v -E '(nightly|alpha|beta|rc|dev)' | head -n1 | sed 's/^v//'
+}
+
+get_package_hash() {
+    local package="$1"
+    local version="$2"
+    local src_type="$3"
+    local npm_package="$4"
+    local github_repo="$5"
+    local url
+
+    # Determine URL based on src_type
+    case "$src_type" in
+    "url")
+        if [[ -n "$npm_package" ]]; then
+            # For npm packages, construct the registry URL
+            # Extract the actual package name (last part after /)
+            local pkg_name=$(basename "$npm_package")
+            url="https://registry.npmjs.org/${npm_package}/-/${pkg_name}-${version}.tgz"
+        else
+            log "npm_package not specified for url type source: $package"
+            return 1
+        fi
+        ;;
+    "github")
+        if [[ -n "$github_repo" ]]; then
+            # For GitHub repositories, we need to simulate the postFetch modifications
+            # Instead of calculating hash directly, use nix to do it with postFetch
+            local temp_dir=$(mktemp -d)
+            local repo_owner=$(echo "$github_repo" | cut -d'/' -f1)
+            local repo_name=$(echo "$github_repo" | cut -d'/' -f2)
+            cat >"$temp_dir/default.nix" <<EOF
+{ pkgs ? import <nixpkgs> {} }:
+pkgs.fetchFromGitHub {
+  owner = "${repo_owner}";
+  repo = "${repo_name}";
+  tag = "v${version}";
+  hash = pkgs.lib.fakeHash;
+  postFetch = ''
+    \${pkgs.lib.getExe pkgs.npm-lockfile-fix} \$out/package-lock.json
+  '';
+}
+EOF
+
+            # Try to build and capture the hash error
+            local result
+            if result=$(nix-build "$temp_dir/default.nix" 2>&1); then
+                log "Unexpected success building GitHub source"
+                rm -rf "$temp_dir"
+                return 1
+            else
+                # Extract hash from error message
+                local hash=$(echo "$result" | grep -o 'got:.*sha256-[A-Za-z0-9+/=]*' | sed 's/got:[[:space:]]*//')
+                rm -rf "$temp_dir"
+
+                if [[ -n "$hash" ]]; then
+                    echo "$hash"
+                    return 0
+                else
+                    log "Failed to extract hash from build error"
+                    return 1
+                fi
+            fi
+        else
+            log "github_repo not specified for github type source: $package"
+            return 1
+        fi
+        ;;
+    *)
+        log "Unknown src_type: $src_type for package: $package"
+        return 1
+        ;;
+    esac
+
+    log "Calculating hash for $url"
+
+    # Download and calculate hash
+    local temp_file=$(mktemp)
+    if curl -s -L "$url" -o "$temp_file"; then
+        local hash=$(nix hash file "$temp_file")
+        rm -f "$temp_file"
+        echo "$hash"
+    else
+        rm -f "$temp_file"
+        log "Failed to download from $url"
+        return 1
+    fi
+}
+
+get_npm_deps_hash() {
+    local package="$1"
+    local version="$2"
+    local src_type="$3"
+    local npm_package="$4"
+    local github_repo="$5"
+    local src_hash="$6"
+    local temp_dir=$(mktemp -d)
+
+    log "Calculating npm_deps_hash for $package"
+
+    # Create a temporary nix expression to calculate npm deps hash
+    cat >"$temp_dir/default.nix" <<EOF
+{ pkgs ? import <nixpkgs> {} }:
+
+let
+  src = 
+EOF
+
+    # Add the appropriate source derivation based on src_type
+    case "$src_type" in
+    "url")
+        if [[ -n "$npm_package" ]]; then
+            local pkg_name=$(basename "$npm_package")
+            cat >>"$temp_dir/default.nix" <<EOF
+    pkgs.fetchurl {
+      url = "https://registry.npmjs.org/${npm_package}/-/${pkg_name}-${version}.tgz";
+      hash = "${src_hash}";
+    };
+EOF
+        else
+            rm -rf "$temp_dir"
+            log "npm_package not specified for url type source: $package"
+            return 1
+        fi
+        ;;
+    "github")
+        if [[ -n "$github_repo" ]]; then
+            local repo_owner=$(echo "$github_repo" | cut -d'/' -f1)
+            local repo_name=$(echo "$github_repo" | cut -d'/' -f2)
+            cat >>"$temp_dir/default.nix" <<EOF
+    pkgs.fetchFromGitHub {
+      owner = "${repo_owner}";
+      repo = "${repo_name}";
+      tag = "v${version}";
+      hash = "${src_hash}";
+    };
+EOF
+        else
+            rm -rf "$temp_dir"
+            log "github_repo not specified for github type source: $package"
+            return 1
+        fi
+        ;;
+    *)
+        rm -rf "$temp_dir"
+        log "Unknown src_type: $src_type for package: $package"
+        return 1
+        ;;
+    esac
+
+    cat >>"$temp_dir/default.nix" <<EOF
+
+in
+pkgs.fetchNpmDeps {
+  inherit src;
+  hash = pkgs.lib.fakeHash;
+}
+EOF
+
+    # Try to build and capture the hash error
+    local result
+    if result=$(nix-build "$temp_dir/default.nix" 2>&1); then
+        log "Unexpected success building npm deps"
+        rm -rf "$temp_dir"
+        return 1
+    else
+        # Extract hash from error message
+        local hash=$(echo "$result" | grep -o 'got:.*sha256-[A-Za-z0-9+/=]*' | sed 's/got:[[:space:]]*//')
+        rm -rf "$temp_dir"
+
+        if [[ -n "$hash" ]]; then
+            echo "$hash"
+        else
+            log "Failed to extract npm deps hash from build error"
+            return 1
+        fi
+    fi
+}
+
 update_toml() {
     local package="$1"
     local new_version="$2"
+    local new_hash="$3"
+    local new_npm_deps_hash="$4"
 
     if [[ "${DRY_RUN:-}" == "true" ]]; then
-        log "DRY_RUN: Would update $package to version $new_version"
+        local msg="DRY_RUN: Would update $package to version $new_version with hash $new_hash"
+        if [[ -n "$new_npm_deps_hash" ]]; then
+            msg="$msg and npm_deps_hash $new_npm_deps_hash"
+        fi
+        log "$msg"
         return 0
     fi
 
-    log "Updating $package to version $new_version"
+    local msg="Updating $package to version $new_version with hash $new_hash"
+    if [[ -n "$new_npm_deps_hash" ]]; then
+        msg="$msg and npm_deps_hash $new_npm_deps_hash"
+    fi
+    log "$msg"
 
     # Update TOML file using sed
-    # Find the package section and update the version line
-    sed -i.bak "/^\[$package\]/,/^\[/ s/^version = .*/version = \"$new_version\"/" "$TOML_FILE"
+    # Find the package section and update the version and hash lines
+    # Use different delimiter to avoid issues with slashes in version strings
+    sed -i.bak "/^\[$package\]/,/^\[/ s|^version = .*|version = \"$new_version\"|" "$TOML_FILE"
+    sed -i.bak "/^\[$package\]/,/^\[/ s|^src_hash = .*|src_hash = \"$new_hash\"|" "$TOML_FILE"
+
+    # Handle npm_deps_hash for packages that have it
+    if grep -A 10 "^\[$package\]" "$TOML_FILE" | grep -q "^npm_deps_hash"; then
+        if [[ -n "$new_npm_deps_hash" ]]; then
+            sed -i.bak "/^\[$package\]/,/^\[/ s|^npm_deps_hash = .*|npm_deps_hash = \"$new_npm_deps_hash\"|" "$TOML_FILE"
+        else
+            log "WARNING: npm_deps_hash calculation failed for $package, keeping existing value"
+        fi
+    fi
+
     rm -f "${TOML_FILE}.bak"
 }
 
@@ -66,23 +278,53 @@ update_package() {
     local package="$1"
     log "Checking for $package updates..."
 
-    # Get current version and npm package name
+    # Get current version and package information
     package_info=$(get_package_info "$package")
     current_version=$(echo "$package_info" | cut -f1)
-    npm_package=$(echo "$package_info" | cut -f2)
+    src_type=$(echo "$package_info" | cut -f2)
+    current_src_hash=$(echo "$package_info" | cut -f3)
+    current_npm_deps_hash=$(echo "$package_info" | cut -f4)
+    npm_package=$(echo "$package_info" | cut -f5)
+    github_repo=$(echo "$package_info" | cut -f6)
 
-    if [[ -z "$npm_package" ]]; then
-        log "Package $package not found in configuration"
+    if [[ -z "$src_type" ]]; then
+        log "Package $package not found in configuration or missing src_type"
         return 1
     fi
 
-    latest_version=$(get_latest_version "$npm_package")
+    # Get latest version based on src_type
+    case "$src_type" in
+    "url")
+        if [[ -n "$npm_package" ]]; then
+            latest_version=$(get_latest_version "$npm_package")
+        else
+            log "npm_package not specified for url type source: $package"
+            return 1
+        fi
+        ;;
+    "github")
+        if [[ -n "$github_repo" ]]; then
+            latest_version=$(get_latest_github_version "$github_repo")
+        else
+            log "github_repo not specified for github type source: $package"
+            return 1
+        fi
+        ;;
+    *)
+        log "Cannot determine latest version for $package (src_type: $src_type)"
+        return 1
+        ;;
+    esac
 
     log "$package current version: $current_version"
     log "$package latest version: $latest_version"
 
     if [[ -z "$latest_version" || "$latest_version" == "null" ]]; then
-        log "$package: Unable to fetch latest version (package may not exist)"
+        if [[ "$src_type" == "github" ]]; then
+            log "$package: Unable to fetch latest release from GitHub (no releases or API error)"
+        else
+            log "$package: Unable to fetch latest version (package may not exist)"
+        fi
         return 1
     fi
 
@@ -93,7 +335,24 @@ update_package() {
 
     log "$package new version available: $latest_version"
 
-    update_toml "$package" "$latest_version"
+    # Calculate hash for new version
+    new_hash=$(get_package_hash "$package" "$latest_version" "$src_type" "$npm_package" "$github_repo")
+    if [[ -z "$new_hash" ]]; then
+        log "Failed to calculate hash for $package version $latest_version"
+        return 1
+    fi
+
+    # Calculate npm_deps_hash if the package has npm dependencies
+    local new_npm_deps_hash=""
+    if [[ -n "$current_npm_deps_hash" ]]; then
+        log "Calculating npm_deps_hash for $package..."
+        new_npm_deps_hash=$(get_npm_deps_hash "$package" "$latest_version" "$src_type" "$npm_package" "$github_repo" "$new_hash")
+        if [[ -z "$new_npm_deps_hash" ]]; then
+            log "Warning: Failed to calculate npm_deps_hash for $package"
+        fi
+    fi
+
+    update_toml "$package" "$latest_version" "$new_hash" "$new_npm_deps_hash"
 
     local status_msg="Successfully updated $package to version $latest_version"
     local dry_run_msg="DRY_RUN mode: Would update $package to version $latest_version"
@@ -129,6 +388,6 @@ main() {
     fi
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+if [[ "${BASH_SOURCE[0]:-}" == "${0}" ]]; then
     main "$@"
 fi
