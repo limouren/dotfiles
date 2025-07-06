@@ -1,0 +1,75 @@
+name: Update Packages
+
+on:
+  schedule:
+    # Run daily at 9 AM HKT (1 AM UTC)
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+    # Allow manual triggering
+
+jobs:
+  update-packages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v25
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install nix-update
+        run: nix-env -iA nixpkgs.nix-update
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y jq curl
+
+      - name: Make update script executable
+        run: chmod +x scripts/update-packages.sh
+
+      - name: Update packages
+        id: update
+        run: |
+          echo "Updating all packages..."
+
+          # Run the update script
+          ./scripts/update-packages.sh all
+
+          # Check if any files were modified
+          if git diff --quiet packages/; then
+            echo "update-needed=false" >> $GITHUB_OUTPUT
+            echo "No updates needed"
+          else
+            echo "update-needed=true" >> $GITHUB_OUTPUT
+            echo "Updates applied"
+            git status
+          fi
+
+      - name: Commit and push changes
+        if: steps.update.outputs.update-needed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add packages/
+          git commit -m "Update packages
+
+          - Updated package versions in packages/
+
+          Auto-updated by update-packages workflow"
+          git push
+
+      - name: Output results
+        run: |
+          echo "Update process completed"
+          if [[ "${{ steps.update.outputs.update-needed }}" == "true" ]]; then
+            echo "✅ Updates applied and pushed to repository"
+          else
+            echo "ℹ️ No updates needed"
+          fi
