@@ -25,11 +25,8 @@ jobs:
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install nix-update
-        run: nix-env -iA nixpkgs.nix-update
-
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y jq curl
+        run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Make update script executable
         run: chmod +x scripts/update-packages.sh
