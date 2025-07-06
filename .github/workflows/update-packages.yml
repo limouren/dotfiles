@@ -25,6 +25,9 @@ jobs:
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Add nixpkgs channel
+        run: nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs && nix-channel --update
+
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y jq
 
