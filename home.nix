@@ -8,17 +8,7 @@
 
 let
 
-  npm-tools-config = builtins.fromTOML (builtins.readFile ./npm-tools.toml);
-
-  npm-tool-overrides = builtins.listToAttrs (
-    builtins.map (toolName: {
-      name = "${toolName}-latest";
-      value = import ./npm-tools/${toolName}.nix {
-        inherit lib pkgs;
-        npmTools = npm-tools-config;
-      };
-    }) (builtins.attrNames npm-tools-config)
-  );
+  package-overrides = import ./packages { inherit pkgs; };
 
   pass = pkgs.pass.withExtensions (ext: [
     ext.pass-update
@@ -110,7 +100,7 @@ in
 
     pkgs.rustc
     pkgs.cargo
-  ] ++ (builtins.attrValues npm-tool-overrides);
+  ] ++ (builtins.attrValues package-overrides);
 
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage
