@@ -10,6 +10,9 @@ let
 
   npm-tools-config = builtins.fromTOML (builtins.readFile ./npm-tools.toml);
 
+  # Import gemini-cli latest override
+  gemini-cli-latest = import ./npm-tools/gemini-cli.nix { inherit lib pkgs; npmTools = npm-tools-config; };
+
   # Generate npm tools dynamically from TOML config
   npm-tools = builtins.listToAttrs (
     builtins.map (toolName: {
@@ -112,6 +115,9 @@ in
 
     pkgs.rustc
     pkgs.cargo
+
+    # AI tools
+    gemini-cli-latest # version 0.1.9 using mkDerivation approach
   ] ++ (builtins.attrValues npm-tools);
 
   # This value determines the Home Manager release that your

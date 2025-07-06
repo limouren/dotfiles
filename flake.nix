@@ -3,17 +3,17 @@
 
   inputs = {
     # Specify the source of Home Manager and Nixpkgs.
-    nixpkgs.url = "github:NixOS/nixpkgs/2f9173bde1d3fbf1ad26ff6d52f952f9e9da52ea";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     mac-app-util = {
-      url = "github:hraban/mac-app-util/9c6bbe2a6a7ec647d03f64f0fadb874284f59eac";
+      url = "github:hraban/mac-app-util";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-env-fish = {
-      url = "github:lilyball/nix-env.fish/7b65bd228429e852c8fdfa07601159130a818cfa";
+      url = "github:lilyball/nix-env.fish";
       flake = false;
     };
   };
