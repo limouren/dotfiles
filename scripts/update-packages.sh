@@ -19,8 +19,23 @@ update_package() {
     local package="$1"
     log "Updating $package..."
 
+    # Determine version parameter
+    local version_param="stable"
+    if [[ "$package" == "claude-code" ]]; then
+        local latest_version
+        latest_version=$(npm view @anthropic-ai/claude-code version 2>/dev/null)
+
+        if [[ -z "$latest_version" ]]; then
+            log "Failed to get latest version for claude-code"
+            return 1
+        fi
+
+        log "Latest claude-code version: $latest_version"
+        version_param="$latest_version"
+    fi
+
     # Use nix-update to update the package
-    nix-shell -p nix-update --run "cd '$REPO_ROOT' && nix-update --file ./packages --version=stable '$package'"
+    nix-shell -p nix-update --run "cd '$REPO_ROOT' && nix-update --file ./packages --version='$version_param' '$package'"
 
     log "$package updated successfully"
 }
