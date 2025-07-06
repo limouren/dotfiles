@@ -57,163 +57,34 @@ get_latest_github_version() {
 get_package_hash() {
     local package="$1"
     local version="$2"
-    local src_type="$3"
-    local npm_package="$4"
-    local github_repo="$5"
-    local url
 
-    # Determine URL based on src_type
-    case "$src_type" in
-    "url")
-        if [[ -n "$npm_package" ]]; then
-            # For npm packages, construct the registry URL
-            # Extract the actual package name (last part after /)
-            local pkg_name=$(basename "$npm_package")
-            url="https://registry.npmjs.org/${npm_package}/-/${pkg_name}-${version}.tgz"
-        else
-            log "npm_package not specified for url type source: $package"
-            return 1
-        fi
-        ;;
-    "github")
-        if [[ -n "$github_repo" ]]; then
-            # For GitHub repositories, we need to simulate the postFetch modifications
-            # Instead of calculating hash directly, use nix to do it with postFetch
-            local temp_dir=$(mktemp -d)
-            local repo_owner=$(echo "$github_repo" | cut -d'/' -f1)
-            local repo_name=$(echo "$github_repo" | cut -d'/' -f2)
-            cat >"$temp_dir/default.nix" <<EOF
-{ pkgs ? import <nixpkgs> {} }:
-pkgs.fetchFromGitHub {
-  owner = "${repo_owner}";
-  repo = "${repo_name}";
-  tag = "v${version}";
-  hash = pkgs.lib.fakeHash;
-  postFetch = ''
-    \${pkgs.lib.getExe pkgs.npm-lockfile-fix} \$out/package-lock.json
-  '';
-}
-EOF
+    log "Calculating hash for $package version $version using nix-build approach"
 
-            # Try to build and capture the hash error
-            local result
-            if result=$(nix-build "$temp_dir/default.nix" 2>&1); then
-                log "Unexpected success building GitHub source"
-                rm -rf "$temp_dir"
-                return 1
-            else
-                # Extract hash from error message
-                local hash=$(echo "$result" | grep -o 'got:.*sha256-[A-Za-z0-9+/=]*' | sed 's/got:[[:space:]]*//')
-                rm -rf "$temp_dir"
-
-                if [[ -n "$hash" ]]; then
-                    echo "$hash"
-                    return 0
-                else
-                    log "Failed to extract hash from build error"
-                    return 1
-                fi
-            fi
-        else
-            log "github_repo not specified for github type source: $package"
-            return 1
-        fi
-        ;;
-    *)
-        log "Unknown src_type: $src_type for package: $package"
-        return 1
-        ;;
-    esac
-
-    log "Calculating hash for $url"
-
-    # Download and calculate hash
-    local temp_file=$(mktemp)
-    if curl -s -L "$url" -o "$temp_file"; then
-        local hash=$(nix hash file "$temp_file")
-        rm -f "$temp_file"
-        echo "$hash"
-    else
-        rm -f "$temp_file"
-        log "Failed to download from $url"
-        return 1
-    fi
-}
-
-get_npm_deps_hash() {
-    local package="$1"
-    local version="$2"
-    local src_type="$3"
-    local npm_package="$4"
-    local github_repo="$5"
-    local src_hash="$6"
+    # Create a temporary nix expression that uses the actual source definition
+    # but updates the version and sets a fake hash
     local temp_dir=$(mktemp -d)
-
-    log "Calculating npm_deps_hash for $package"
-
-    # Create a temporary nix expression to calculate npm deps hash
+    local current_dir=$(pwd)
     cat >"$temp_dir/default.nix" <<EOF
 { pkgs ? import <nixpkgs> {} }:
-
-let
-  src = 
-EOF
-
-    # Add the appropriate source derivation based on src_type
-    case "$src_type" in
-    "url")
-        if [[ -n "$npm_package" ]]; then
-            local pkg_name=$(basename "$npm_package")
-            cat >>"$temp_dir/default.nix" <<EOF
-    pkgs.fetchurl {
-      url = "https://registry.npmjs.org/${npm_package}/-/${pkg_name}-${version}.tgz";
-      hash = "${src_hash}";
+let 
+  lib = pkgs.lib;
+  npm-tools-config = builtins.fromTOML (builtins.readFile $current_dir/npm-tools.toml);
+  # Update the version and set fake hash in the config
+  updated-config = npm-tools-config // {
+    $package = npm-tools-config.$package // { 
+      version = "$version"; 
+      src_hash = pkgs.lib.fakeHash;
     };
-EOF
-        else
-            rm -rf "$temp_dir"
-            log "npm_package not specified for url type source: $package"
-            return 1
-        fi
-        ;;
-    "github")
-        if [[ -n "$github_repo" ]]; then
-            local repo_owner=$(echo "$github_repo" | cut -d'/' -f1)
-            local repo_name=$(echo "$github_repo" | cut -d'/' -f2)
-            cat >>"$temp_dir/default.nix" <<EOF
-    pkgs.fetchFromGitHub {
-      owner = "${repo_owner}";
-      repo = "${repo_name}";
-      tag = "v${version}";
-      hash = "${src_hash}";
-    };
-EOF
-        else
-            rm -rf "$temp_dir"
-            log "github_repo not specified for github type source: $package"
-            return 1
-        fi
-        ;;
-    *)
-        rm -rf "$temp_dir"
-        log "Unknown src_type: $src_type for package: $package"
-        return 1
-        ;;
-    esac
-
-    cat >>"$temp_dir/default.nix" <<EOF
-
+  };
+  override = import $current_dir/npm-tools/$package.nix { inherit lib pkgs; npmTools = updated-config; };
 in
-pkgs.fetchNpmDeps {
-  inherit src;
-  hash = pkgs.lib.fakeHash;
-}
+override.src
 EOF
 
     # Try to build and capture the hash error
     local result
     if result=$(nix-build "$temp_dir/default.nix" 2>&1); then
-        log "Unexpected success building npm deps"
+        log "Unexpected success building source"
         rm -rf "$temp_dir"
         return 1
     else
@@ -223,11 +94,51 @@ EOF
 
         if [[ -n "$hash" ]]; then
             echo "$hash"
+            return 0
         else
-            log "Failed to extract npm deps hash from build error"
+            log "Failed to extract hash from build error"
             return 1
         fi
     fi
+}
+
+get_npm_deps_hash() {
+    local package="$1"
+    local version="$2"
+    local src_hash="$3"
+
+    log "Calculating npm_deps_hash for $package version $version using prefetch-npm-deps"
+
+    # Get the source path by building it with the correct version and src_hash
+    local temp_dir=$(mktemp -d)
+    local current_dir=$(pwd)
+    cat >"$temp_dir/default.nix" <<EOF
+{ pkgs ? import <nixpkgs> {} }:
+let 
+  lib = pkgs.lib;
+  npm-tools-config = builtins.fromTOML (builtins.readFile $current_dir/npm-tools.toml);
+  updated-config = npm-tools-config // {
+    $package = npm-tools-config.$package // { 
+      version = "$version"; 
+      src_hash = "$src_hash";
+    };
+  };
+  override = import $current_dir/npm-tools/$package.nix { inherit lib pkgs; npmTools = updated-config; };
+in
+override.src
+EOF
+
+    # Build the source to get its path in /nix/store
+    local src_path
+    if ! src_path=$(nix-build "$temp_dir/default.nix" --no-out-link 2>/dev/null); then
+        log "Failed to build source for $package"
+        rm -rf "$temp_dir"
+        return 1
+    fi
+    rm -rf "$temp_dir"
+
+    # Run prefetch-npm-deps on the source using nix-shell
+    nix-shell -p prefetch-npm-deps --run "prefetch-npm-deps '$src_path/package-lock.json'" 2>/dev/null
 }
 
 update_toml() {
@@ -336,7 +247,7 @@ update_package() {
     log "$package new version available: $latest_version"
 
     # Calculate hash for new version
-    new_hash=$(get_package_hash "$package" "$latest_version" "$src_type" "$npm_package" "$github_repo")
+    new_hash=$(get_package_hash "$package" "$latest_version")
     if [[ -z "$new_hash" ]]; then
         log "Failed to calculate hash for $package version $latest_version"
         return 1
@@ -346,7 +257,7 @@ update_package() {
     local new_npm_deps_hash=""
     if [[ -n "$current_npm_deps_hash" ]]; then
         log "Calculating npm_deps_hash for $package..."
-        new_npm_deps_hash=$(get_npm_deps_hash "$package" "$latest_version" "$src_type" "$npm_package" "$github_repo" "$new_hash")
+        new_npm_deps_hash=$(get_npm_deps_hash "$package" "$latest_version" "$new_hash")
         if [[ -z "$new_npm_deps_hash" ]]; then
             log "Warning: Failed to calculate npm_deps_hash for $package"
         fi
