@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   pkgs,
   nix-env-fish,
   ...

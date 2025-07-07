@@ -47,5 +47,7 @@
           inherit nix-env-fish;
         };
       };
+
+      formatter.${system} = pkgs.nixfmt-tree;
     };
 }
