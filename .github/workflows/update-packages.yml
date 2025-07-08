@@ -28,6 +28,12 @@ jobs:
       - name: Add nixpkgs channel
         run: nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs && nix-channel --update
 
+      - name: Install Home Manager
+        run: |
+          nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
+          nix-channel --update
+          nix-shell '<home-manager>' -A install
+
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y jq
 
