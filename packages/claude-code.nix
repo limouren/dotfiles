@@ -5,11 +5,11 @@
 
 claude-code.overrideAttrs (
   finalAttrs: prevAttrs: {
-    version = "1.0.43";
+    version = "1.0.44";
 
     src = fetchurl {
       url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${finalAttrs.version}.tgz";
-      hash = "sha256-t8XunDJEt8jdShec4AtelTBmQ3KtWPMOgMxjxuMveRU=";
+      hash = "sha256-MXasDvrwdkf8QMnLEvldh315mqSWiIGtyTxa8xR2kHE=";
     };
   }
 )
