@@ -1,6 +1,7 @@
 {
   fetchFromGitHub,
   fetchNpmDeps,
+  lib,
   npm-lockfile-fix,
   gemini-cli,
 }:
