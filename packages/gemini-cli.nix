@@ -14,7 +14,7 @@ gemini-cli.overrideAttrs (
       owner = "google-gemini";
       repo = "gemini-cli";
       tag = "v${finalAttrs.version}";
-      hash = "sha256-8HTeffE7r1dXk6hY/ZrYzt4/Is9FoplpTEYE5ZSt7sI=";
+      hash = "sha256-7StuYqKGnTTZY3BKK3X1kWNReRUfyvhfH3wGw0Pz2zM=";
       postFetch = ''
         ${lib.getExe npm-lockfile-fix} $out/package-lock.json
       '';
