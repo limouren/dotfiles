@@ -37,8 +37,10 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Make update script executable
-        run: chmod +x scripts/update-packages.sh
+      - name: Make scripts executable
+        run: |
+          chmod +x scripts/update-packages.sh
+          chmod +x scripts/parse-package-changes.sh
 
       - name: Update packages
         id: update
@@ -48,25 +50,46 @@ jobs:
           # Run the update script
           ./scripts/update-packages.sh all
 
-          # Check if any files were modified
+          # Check if any files were modified and capture changes
           if git diff --quiet packages/; then
             echo "update-needed=false" >> $GITHUB_OUTPUT
             echo "No updates needed"
           else
             echo "update-needed=true" >> $GITHUB_OUTPUT
             echo "Updates applied"
+
+            # Capture package changes for commit message
+            git diff packages/ > /tmp/package_changes.diff
+
+            # Parse version changes and create commit message details
+            if ./scripts/parse-package-changes.sh /tmp/package_changes.diff > /tmp/commit_output.txt; then
+              # Extract package names and details
+              PACKAGE_NAMES=$(grep "^PACKAGES:" /tmp/commit_output.txt | cut -d: -f2)
+              grep -A999 "^DETAILS:" /tmp/commit_output.txt | tail -n +2 > /tmp/commit_details.txt
+              echo "package-names=$PACKAGE_NAMES" >> $GITHUB_OUTPUT
+              echo "has-version-changes=true" >> $GITHUB_OUTPUT
+            else
+              echo "No version changes detected, skipping commit"
+              echo "has-version-changes=false" >> $GITHUB_OUTPUT
+            fi
+
             git status
           fi
 
       - name: Commit and push changes
-        if: steps.update.outputs.update-needed == 'true'
+        if: steps.update.outputs.update-needed == 'true' && steps.update.outputs.has-version-changes == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add packages/
-          git commit -m "Update packages
 
-          - Updated package versions in packages/
+          # Read package change details
+          PACKAGE_DETAILS=$(cat /tmp/commit_details.txt)
+          COMMIT_TITLE="Update packages: ${{ steps.update.outputs.package-names }}"
+
+          git commit -m "$COMMIT_TITLE
+
+          $PACKAGE_DETAILS
 
           Auto-updated by update-packages workflow"
           git push
@@ -75,7 +98,12 @@ jobs:
         run: |
           echo "Update process completed"
           if [[ "${{ steps.update.outputs.update-needed }}" == "true" ]]; then
-            echo "✅ Updates applied and pushed to repository"
+            if [[ "${{ steps.update.outputs.has-version-changes }}" == "true" ]]; then
+              echo "✅ Version updates applied and pushed to repository"
+              echo "📦 Updated packages: ${{ steps.update.outputs.package-names }}"
+            else
+              echo "ℹ️ Package files changed but no version updates detected - no commit made"
+            fi
           else
             echo "ℹ️ No updates needed"
           fi
