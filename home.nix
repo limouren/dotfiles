@@ -36,6 +36,12 @@ in
     target = "Library/Application Support/Mozilla/NativeMessagingHosts/passff.json";
     source = "${pkgs.passff-host}/share/passff-host/passff.json";
   };
+  home.file.pass-completion = {
+    target = ".config/fish/completions/pass.fish";
+    source = pkgs.replaceVars ./pass-completion.fish {
+      passCompletion = "${pkgs.pass}/share/fish/vendor_completions.d/pass.fish";
+    };
+  };
 
   home.packages = [
     pkgs.asdf-vm
