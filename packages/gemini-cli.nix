@@ -8,20 +8,20 @@
 
 gemini-cli.overrideAttrs (
   finalAttrs: prevAttrs: {
-    version = "0.1.15";
+    version = "0.1.16";
 
     src = fetchFromGitHub {
       owner = "google-gemini";
       repo = "gemini-cli";
       tag = "v${finalAttrs.version}";
-      hash = "sha256-J9pDSMsSh7FVPD61FFV2Aes3G/Vj1j5ULn9dOr+sglQ=";
+      hash = "sha256-fFYlXmOqQm3s4Bt3Rgkvlyph+85AJCb5ttDYFC3jfVo=";
     };
 
     patches = [ ./gemini-cli.patch ];
 
     npmDeps = fetchNpmDeps {
       inherit (finalAttrs) src patches;
-      hash = "sha256-c8Ud2pznLewldGLCTIAx6Taq4bqySBAr0hfFKWzJOOI=";
+      hash = "sha256-YIcz0Y9Ih87OxWjY4D3aZ/shRlpOZSfiHxVcXSN7Szc=";
     };
 
     postInstall =
