@@ -70,6 +70,7 @@ in
     pkgs.lnav
     pkgs.nodejs
     pkgs.nodejs.pkgs.firebase-tools
+    pkgs.nodejs.pkgs.pnpm
     pkgs.nodejs.pkgs.yarn
     pkgs.nixfmt-rfc-style
     pkgs.nurl
@@ -92,6 +93,7 @@ in
     pkgs.tree
     pkgs.unrar
     pkgs.uv
+    pkgs.websocat
     pkgs.xh
     pkgs.zbar
 
