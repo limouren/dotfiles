@@ -14,25 +14,17 @@ gemini-cli.overrideAttrs (
       owner = "google-gemini";
       repo = "gemini-cli";
       tag = "v${finalAttrs.version}";
-      hash = "sha256-4PnyJKAiRksiGac6/ibZ/DhFhCFsFn+hjEPqml2XVfk=";
+      hash = "sha256-J8IqmNifcqHaR5D2PXB5Hvm+C/J4cTbDRg9Sz+3A5k8=";
+      postFetch = ''
+        ${lib.getExe npm-lockfile-fix} $out/package-lock.json
+      '';
     };
-
-    patches = [ ./gemini-cli.patch ];
 
     npmDeps = fetchNpmDeps {
-      inherit (finalAttrs) src patches;
-      hash = "sha256-+hKZmkifv96C7QZSkEC+HtJnRr0GUuQFmm4p7bjP97M=";
+      inherit (finalAttrs) src;
+      hash = "sha256-lkU0KLSG8whi+9zRDjWe1cekSafovhjnrzq1IoWMrdA=";
     };
 
-    postInstall =
-      (prevAttrs.postInstall or "")
-      + ''
-        # Remove broken symlink to VSCode extension
-        rm -f $out/share/gemini-cli/node_modules/gemini-cli-vscode-ide-companion
-
-        # Copy VSCode extension to main output
-        mkdir -p $out/share/vscode/extensions
-        cp packages/vscode-ide-companion/gemini-cli-vscode-ide-companion-${finalAttrs.version}.vsix $out/share/vscode/extensions/
-      '';
+    dontCheckForBrokenSymlinks = true;
   }
 )
