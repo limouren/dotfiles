@@ -2,6 +2,7 @@
   config,
   pkgs,
   nix-env-fish,
+  nix-ai-tools,
   ...
 }:
 
@@ -44,6 +45,9 @@ in
   };
 
   home.packages = [
+    nix-ai-tools.claude-code-router
+    nix-ai-tools.opencode
+
     pkgs.asdf-vm
     pkgs.blackbox
     pkgs.btop

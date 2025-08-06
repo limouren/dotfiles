@@ -16,6 +16,10 @@
       url = "github:lilyball/nix-env.fish";
       flake = false;
     };
+    nix-ai-tools-src = {
+      url = "github:numtide/nix-ai-tools";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -24,11 +28,13 @@
       home-manager,
       mac-app-util,
       nix-env-fish,
+      nix-ai-tools-src,
       ...
     }:
     let
       system = "aarch64-darwin";
       pkgs = nixpkgs.legacyPackages.${system};
+      nix-ai-tools = nix-ai-tools-src.packages.${system};
     in
     {
       homeConfigurations."limouren" = home-manager.lib.homeManagerConfiguration {
@@ -44,7 +50,7 @@
         # Optionally use extraSpecialArgs
         # to pass through arguments to home.nix
         extraSpecialArgs = {
-          inherit nix-env-fish;
+          inherit nix-env-fish nix-ai-tools;
         };
       };
 
