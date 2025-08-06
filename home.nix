@@ -107,7 +107,8 @@ in
 
     pkgs.rustc
     pkgs.cargo
-  ] ++ (builtins.attrValues package-overrides);
+  ]
+  ++ (builtins.attrValues package-overrides);
 
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage
