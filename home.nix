@@ -60,6 +60,7 @@ in
     pkgs.dua
     pkgs.ffmpeg
     pkgs.fzf
+    pkgs.gh
     # pkgs.go
     # pkgs.gopls
     # pkgs.gotools
