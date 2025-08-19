@@ -94,6 +94,7 @@ in
     pkgs.rye
     pkgs.shellcheck
     pkgs.shfmt
+    pkgs.terminal-notifier
     pkgs.temurin-bin-17
     pkgs.terraform
     pkgs.tree
