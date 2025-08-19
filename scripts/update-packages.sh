@@ -15,6 +15,15 @@ get_available_packages() {
     nix eval --json --impure --expr "builtins.attrNames (import $REPO_ROOT/packages {})" 2>/dev/null | jq -r '.[]'
 }
 
+get_auto_updatable_packages() {
+    # List of packages that have opted-in for automatic updates
+    # Add package names here to enable auto-updates
+    cat <<EOF
+claude-code
+gemini-cli
+EOF
+}
+
 update_package() {
     local package="$1"
     log "Updating $package..."
@@ -34,15 +43,17 @@ rebuild_home_manager() {
 main() {
     local package="${1:-all}"
 
-    # Get list of available packages
+    # Get list of available and auto-updatable packages
     local available_packages
+    local auto_updatable_packages
     available_packages=$(get_available_packages)
+    auto_updatable_packages=$(get_auto_updatable_packages)
 
     if [[ "$package" == "all" ]]; then
-        # Update all packages
+        # Update only auto-updatable packages
         while IFS= read -r pkg; do
             update_package "$pkg"
-        done <<<"$available_packages"
+        done <<<"$auto_updatable_packages"
     elif echo "$available_packages" | grep -q "^$package$"; then
         # Update specific package
         update_package "$package"
@@ -50,6 +61,8 @@ main() {
         log "Unknown package: $package"
         log "Available packages:"
         echo "$available_packages" | while read -r line; do echo "  $line"; done >&2
+        log "Auto-updatable packages:"
+        echo "$auto_updatable_packages" | while read -r line; do echo "  $line"; done >&2
         log "Usage: $0 [package-name|all]"
         exit 1
     fi
