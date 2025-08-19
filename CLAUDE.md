@@ -1,0 +1,1 @@
+- Run `shellcheck` on shell scripts if you created or modified them

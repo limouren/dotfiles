@@ -92,6 +92,7 @@ in
     pkgs.ripgrep
     pkgs.ruby_3_1
     pkgs.rye
+    pkgs.shellcheck
     pkgs.shfmt
     pkgs.temurin-bin-17
     pkgs.terraform
@@ -199,4 +200,16 @@ in
 
   nixpkgs.config.allowBroken = true;
   nixpkgs.config.allowUnfree = true;
+
+  launchd.agents.home-manager-sync = {
+    enable = true;
+    config = {
+      ProgramArguments = [
+        "${config.home.homeDirectory}/.config/home-manager/scripts/sync-and-switch.sh"
+      ];
+      StartInterval = 3600; # Run every hour
+      StandardOutPath = "${config.home.homeDirectory}/Library/Logs/home-manager-sync.log";
+      StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/home-manager-sync.log";
+    };
+  };
 }
