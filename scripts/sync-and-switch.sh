@@ -23,7 +23,8 @@ notify() {
     local message="$2"
     local sound="${3:-Glass}"
     
-    terminal-notifier -title "$title" -message "$message" -sound "$sound"
+    terminal-notifier -title "$title" -message "$message" -sound "$sound" \
+        -execute "open ~/Library/Logs/home-manager-sync.log"
     log "NOTIFICATION: $title - $message"
 }
 
