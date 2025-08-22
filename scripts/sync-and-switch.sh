@@ -2,6 +2,15 @@
 
 set -euo pipefail
 
+# Source Nix environment for launchd
+if [[ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]]; then
+    # Temporarily disable unbound variable check for nix-daemon.sh
+    set +u
+    # shellcheck source=/dev/null
+    source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+    set -u
+fi
+
 # Find the repo root
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
