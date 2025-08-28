@@ -8,13 +8,13 @@
 
 gemini-cli.overrideAttrs (
   finalAttrs: prevAttrs: {
-    version = "0.2.0";
+    version = "0.2.1";
 
     src = fetchFromGitHub {
       owner = "google-gemini";
       repo = "gemini-cli";
       tag = "v${finalAttrs.version}";
-      hash = "sha256-Vn50zF8QDDJrtCrqm8YSsIMV0k9mOROWEmBRfYHOT8I=";
+      hash = "sha256-ldQ7Qwm5dm/iLXem5WhokdO5d6CUwVxQbHUR0bb7WJ0=";
       postFetch = ''
         ${lib.getExe npm-lockfile-fix} $out/package-lock.json
       '';
@@ -22,7 +22,7 @@ gemini-cli.overrideAttrs (
 
     npmDeps = fetchNpmDeps {
       inherit (finalAttrs) src;
-      hash = "sha256-8Kn/3dNcUXcIvLjbg7l/UEsYZyuF3lekgZWYeTkeZQE=";
+      hash = "sha256-247zfZG0RarO2iW97EHWBjMiIdc+fIfuD3n+Js9TJj4=";
     };
 
     dontCheckForBrokenSymlinks = true;
