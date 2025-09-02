@@ -50,46 +50,91 @@ jobs:
           # Run the update script
           ./scripts/update-packages.sh all
 
-          # Check if any files were modified and capture changes
-          if git diff --quiet packages/; then
+          # Check for different types of changes
+          PACKAGE_CHANGES=$(git diff --quiet packages/ && echo "false" || echo "true")
+          FLAKE_CHANGES=$(git diff --quiet flake.lock && echo "false" || echo "true")
+
+          if [[ "$PACKAGE_CHANGES" == "false" && "$FLAKE_CHANGES" == "false" ]]; then
             echo "update-needed=false" >> $GITHUB_OUTPUT
             echo "No updates needed"
           else
             echo "update-needed=true" >> $GITHUB_OUTPUT
             echo "Updates applied"
+            
+            # Initialize update types
+            echo "package-updates=$PACKAGE_CHANGES" >> $GITHUB_OUTPUT
+            echo "flake-updates=$FLAKE_CHANGES" >> $GITHUB_OUTPUT
 
-            # Capture package changes for commit message
-            git diff packages/ > /tmp/package_changes.diff
+            # Handle package updates
+            if [[ "$PACKAGE_CHANGES" == "true" ]]; then
+              # Capture package changes for commit message
+              git diff packages/ > /tmp/package_changes.diff
 
-            # Parse version changes and create commit message details
-            if ./scripts/parse-package-changes.sh /tmp/package_changes.diff > /tmp/commit_output.txt; then
-              # Extract package names and details
-              PACKAGE_NAMES=$(grep "^PACKAGES:" /tmp/commit_output.txt | cut -d: -f2)
-              grep -A999 "^DETAILS:" /tmp/commit_output.txt | tail -n +2 > /tmp/commit_details.txt
-              echo "package-names=$PACKAGE_NAMES" >> $GITHUB_OUTPUT
-              echo "has-version-changes=true" >> $GITHUB_OUTPUT
+              # Parse version changes and create commit message details
+              if ./scripts/parse-package-changes.sh /tmp/package_changes.diff > /tmp/commit_output.txt; then
+                # Extract package names and details
+                PACKAGE_NAMES=$(grep "^PACKAGES:" /tmp/commit_output.txt | cut -d: -f2)
+                grep -A999 "^DETAILS:" /tmp/commit_output.txt | tail -n +2 > /tmp/commit_details.txt
+                echo "package-names=$PACKAGE_NAMES" >> $GITHUB_OUTPUT
+                echo "has-version-changes=true" >> $GITHUB_OUTPUT
+              else
+                echo "No version changes detected in packages"
+                echo "has-version-changes=false" >> $GITHUB_OUTPUT
+              fi
             else
-              echo "No version changes detected, skipping commit"
               echo "has-version-changes=false" >> $GITHUB_OUTPUT
+            fi
+
+            # Handle flake updates
+            if [[ "$FLAKE_CHANGES" == "true" ]]; then
+              # Extract flake input changes
+              git diff flake.lock | grep -E '^\+.*"rev":|^\+.*"lastModified":' | head -10 > /tmp/flake_changes.txt || true
+              echo "has-flake-changes=true" >> $GITHUB_OUTPUT
+            else
+              echo "has-flake-changes=false" >> $GITHUB_OUTPUT
             fi
 
             git status
           fi
 
       - name: Commit and push changes
-        if: steps.update.outputs.update-needed == 'true' && steps.update.outputs.has-version-changes == 'true'
+        if: steps.update.outputs.update-needed == 'true' && (steps.update.outputs.has-version-changes == 'true' || steps.update.outputs.has-flake-changes == 'true')
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add packages/
+          
+          # Add the appropriate files based on what changed
+          if [[ "${{ steps.update.outputs.package-updates }}" == "true" ]]; then
+            git add packages/
+          fi
+          if [[ "${{ steps.update.outputs.flake-updates }}" == "true" ]]; then
+            git add flake.lock
+          fi
 
-          # Read package change details
-          PACKAGE_DETAILS=$(cat /tmp/commit_details.txt)
-          COMMIT_TITLE="Update packages: ${{ steps.update.outputs.package-names }}"
+          # Create commit message based on update types
+          if [[ "${{ steps.update.outputs.has-version-changes }}" == "true" && "${{ steps.update.outputs.has-flake-changes }}" == "true" ]]; then
+            # Both package and flake updates
+            PACKAGE_DETAILS=$(cat /tmp/commit_details.txt)
+            COMMIT_TITLE="Update packages and flake inputs: ${{ steps.update.outputs.package-names }}"
+            COMMIT_BODY="$PACKAGE_DETAILS
+
+          Updated flake inputs (nix-ai-tools)"
+            
+          elif [[ "${{ steps.update.outputs.has-version-changes }}" == "true" ]]; then
+            # Package updates only
+            PACKAGE_DETAILS=$(cat /tmp/commit_details.txt)
+            COMMIT_TITLE="Update packages: ${{ steps.update.outputs.package-names }}"
+            COMMIT_BODY="$PACKAGE_DETAILS"
+            
+          elif [[ "${{ steps.update.outputs.has-flake-changes }}" == "true" ]]; then
+            # Flake updates only
+            COMMIT_TITLE="Update flake inputs"
+            COMMIT_BODY="Updated nix-ai-tools flake input"
+          fi
 
           git commit -m "$COMMIT_TITLE
 
-          $PACKAGE_DETAILS
+          $COMMIT_BODY
 
           Auto-updated by update-packages workflow"
           git push
@@ -98,11 +143,19 @@ jobs:
         run: |
           echo "Update process completed"
           if [[ "${{ steps.update.outputs.update-needed }}" == "true" ]]; then
-            if [[ "${{ steps.update.outputs.has-version-changes }}" == "true" ]]; then
-              echo "✅ Version updates applied and pushed to repository"
+            # Check what was actually committed
+            if [[ "${{ steps.update.outputs.has-version-changes }}" == "true" && "${{ steps.update.outputs.has-flake-changes }}" == "true" ]]; then
+              echo "✅ Package and flake updates applied and pushed to repository"
               echo "📦 Updated packages: ${{ steps.update.outputs.package-names }}"
+              echo "🔄 Updated flake input: nix-ai-tools"
+            elif [[ "${{ steps.update.outputs.has-version-changes }}" == "true" ]]; then
+              echo "✅ Package updates applied and pushed to repository"  
+              echo "📦 Updated packages: ${{ steps.update.outputs.package-names }}"
+            elif [[ "${{ steps.update.outputs.has-flake-changes }}" == "true" ]]; then
+              echo "✅ Flake input updates applied and pushed to repository"
+              echo "🔄 Updated flake input: nix-ai-tools"
             else
-              echo "ℹ️ Package files changed but no version updates detected - no commit made"
+              echo "ℹ️ Files changed but no significant updates detected - no commit made"
             fi
           else
             echo "ℹ️ No updates needed"

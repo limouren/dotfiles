@@ -23,6 +23,15 @@ claude-code
 EOF
 }
 
+get_monitored_flake_tools() {
+    # List of tools from flake inputs that should be monitored for updates
+    # Add tool names here to monitor for updates from nix-ai-tools
+    cat <<EOF
+opencode
+codex
+EOF
+}
+
 update_package() {
     local package="$1"
     log "Updating $package..."
@@ -31,6 +40,38 @@ update_package() {
     nix run github:Mic92/nix-update/1b5bc1e -- --file ./packages --version stable "$package"
 
     log "$package updated successfully"
+}
+
+update_nix_ai_tools_if_needed() {
+    log "Checking nix-ai-tools for updates..."
+
+    # Get list of monitored tools
+    local monitored_tools
+    monitored_tools=$(get_monitored_flake_tools)
+
+    # Compare current flake input versions with upstream
+    local has_updates=false
+    while IFS= read -r tool; do
+        local current_hash
+        current_hash=$(nix eval --raw --impure --expr "let system = builtins.currentSystem; in (builtins.getFlake (toString ./.)).inputs.nix-ai-tools.packages.\${system}.$tool.drvPath" 2>/dev/null || echo "not-available")
+
+        local upstream_hash
+        upstream_hash=$(nix eval --raw "github:numtide/nix-ai-tools#$tool.drvPath" 2>/dev/null || echo "not-available")
+
+        if [[ "$current_hash" != "$upstream_hash" ]]; then
+            log "Update available for $tool (current: ${current_hash##*/}, upstream: ${upstream_hash##*/})"
+            has_updates=true
+            break
+        fi
+    done <<<"$monitored_tools"
+
+    if [[ "$has_updates" == "true" ]]; then
+        log "Tool updates found, updating nix-ai-tools..."
+        nix flake update nix-ai-tools
+        log "nix-ai-tools updated successfully"
+    else
+        log "No tool updates available in nix-ai-tools"
+    fi
 }
 
 rebuild_home_manager() {
@@ -65,6 +106,9 @@ main() {
         log "Usage: $0 [package-name|all]"
         exit 1
     fi
+
+    # Check nix-ai-tools for updates
+    update_nix_ai_tools_if_needed
 
     rebuild_home_manager
 }
