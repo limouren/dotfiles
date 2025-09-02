@@ -20,7 +20,6 @@ get_auto_updatable_packages() {
     # Add package names here to enable auto-updates
     cat <<EOF
 claude-code
-gemini-cli
 EOF
 }
 

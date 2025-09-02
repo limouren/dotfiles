@@ -4,6 +4,5 @@
 
 {
   claude-code = pkgs.callPackage ./claude-code.nix { };
-  gemini-cli = pkgs.callPackage ./gemini-cli.nix { };
   mssql-tools = pkgs.callPackage ./mssql-tools.nix { };
 }
