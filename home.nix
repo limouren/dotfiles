@@ -45,6 +45,7 @@ in
   };
 
   home.packages = [
+    ai-tools.codex
     ai-tools.opencode
 
     pkgs.asdf-vm
@@ -58,6 +59,7 @@ in
     pkgs.devenv
     pkgs.dua
     pkgs.ffmpeg
+    pkgs.nginx
     pkgs.fzf
     pkgs.gh
     # pkgs.go
