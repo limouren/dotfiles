@@ -154,24 +154,7 @@ in
       src = nix-env-fish;
     }
   ];
-  programs.fish.shellInit = ''
-    if test $(uname -m) = "x86_64"
-        eval (/usr/local/bin/brew shellenv)
-    else
-        eval (/opt/homebrew/bin/brew shellenv)
-    end
-
-    # https://developer.android.com/tools
-    # TODO: manage android studio & android sdk
-    set ANDROID_HOME ~/Library/Android/sdk
-    set PATH $PATH $ANDROID_HOME/emulator
-    set PATH $PATH $ANDROID_HOME/tools
-    set PATH $PATH $ANDROID_HOME/tools/bin
-    set PATH $PATH $ANDROID_HOME/platform-tools
-
-    # Sublime Text
-    set PATH $PATH '/Applications/Sublime Text.app/Contents/SharedSupport/bin'
-  '';
+  programs.fish.shellInit = builtins.readFile ./fish-init.fish;
 
   programs.starship.enable = true;
   programs.starship.enableFishIntegration = true;
