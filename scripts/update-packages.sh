@@ -38,6 +38,7 @@ get_auto_updatable_packages() {
 	# Add package names here to enable auto-updates
 	cat <<EOF
 claude-code
+uv
 EOF
 }
 
@@ -103,12 +104,12 @@ update_nix_ai_tools_if_needed() {
 			# Get current and upstream versions
 			local current_version
 			current_version=$(nix eval --raw --impure --expr "let system = builtins.currentSystem; in (builtins.getFlake (toString ./.)).inputs.nix-ai-tools.packages.\${system}.$tool.version" 2>/dev/null || echo "unknown")
-			
+
 			local upstream_version
 			upstream_version=$(nix eval --raw "github:numtide/nix-ai-tools#$tool.version" 2>/dev/null || echo "unknown")
 
 			log "Update available for $tool: $current_version → $upstream_version"
-			
+
 			if [[ -n "$updated_tools" ]]; then
 				updated_tools="$updated_tools, $tool"
 				tool_version_changes="$tool_version_changes, $tool: $current_version -> $upstream_version"
@@ -130,7 +131,7 @@ update_nix_ai_tools_if_needed() {
 		# Check if there are changes to commit
 		if has_changes "flake.lock"; then
 			log "Updated nix-ai-tools: $tool_version_changes"
-			
+
 			# Create commit for flake update with version changes
 			git add flake.lock
 			git commit -m "Update $tool_version_changes"
