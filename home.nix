@@ -101,7 +101,6 @@ in
     pkgs.tree
     pkgs.unrar
     pkgs.usql
-    pkgs.uv
     pkgs.websocat
     pkgs.xh
     pkgs.zbar
