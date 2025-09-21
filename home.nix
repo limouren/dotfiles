@@ -48,6 +48,7 @@ in
     ai-tools.codex
     ai-tools.opencode
 
+    pkgs.aria2
     pkgs.asdf-vm
     pkgs.blackbox
     pkgs.btop
@@ -58,7 +59,7 @@ in
     pkgs.colima
     pkgs.devenv
     pkgs.dua
-    pkgs.ffmpeg
+    pkgs.ffmpeg_8
     pkgs.nginx
     pkgs.fzf
     pkgs.gh
