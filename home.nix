@@ -50,6 +50,7 @@ in
 
     pkgs.aria2
     pkgs.asdf-vm
+    pkgs.ast-grep
     pkgs.blackbox
     pkgs.btop
     pkgs.bun
@@ -73,6 +74,7 @@ in
     pkgs.kubectx
     pkgs.kubernetes-helm-wrapped
     pkgs.idb-companion
+    pkgs.innoextract
     pkgs.lftp
     pkgs.lnav
     pkgs.nodejs
@@ -82,6 +84,7 @@ in
     pkgs.nixfmt-rfc-style
     pkgs.nurl
     pkgs.overmind
+    pkgs.p7zip
     pkgs.podman
     pkgs.poetry
     pkgs.postgresql
