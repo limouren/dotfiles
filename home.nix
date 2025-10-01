@@ -165,6 +165,8 @@ in
     userEmail = "limouren@gmail.com";
     userName = "Kenji Pa";
     extraConfig = {
+      diff.blackbox.textconv = "gpg --use-agent -q --batch --decrypt";
+      core.attributesfile = "${config.xdg.configHome}/git/attributes";
       url = {
         "https://" = {
           insteadof = "git://";
@@ -174,6 +176,9 @@ in
 
     riff.enable = true;
   };
+  home.file.".config/git/attributes".text = ''
+    *.gpg diff=blackbox
+  '';
 
   programs.direnv.enable = true;
   programs.direnv.nix-direnv.enable = true;
