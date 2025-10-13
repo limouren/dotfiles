@@ -64,7 +64,7 @@ in
     pkgs.nginx
     pkgs.fzf
     pkgs.gh
-    # pkgs.go
+    pkgs.go
     # pkgs.gopls
     # pkgs.gotools
     # pkgs.go-outline
@@ -76,6 +76,8 @@ in
     pkgs.idb-companion
     pkgs.innoextract
     pkgs.lftp
+    pkgs.libcaca
+    pkgs.libcaca.dev
     pkgs.lnav
     pkgs.nodejs
     pkgs.nodejs.pkgs.firebase-tools
@@ -95,7 +97,9 @@ in
     pkgs.yt-dlp
     pkgs.redis
     pkgs.ripgrep
+    pkgs.rtorrent
     pkgs.ruby_3_1
+    pkgs.rustup
     pkgs.rye
     pkgs.shellcheck
     pkgs.shfmt
@@ -116,9 +120,6 @@ in
     pass
     pinentry
     pkgs.passff-host
-
-    pkgs.rustc
-    pkgs.cargo
   ]
   ++ (builtins.attrValues package-overrides);
 
