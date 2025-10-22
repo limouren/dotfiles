@@ -74,6 +74,7 @@ in
     pkgs.kubectx
     pkgs.kubernetes-helm-wrapped
     pkgs.idb-companion
+    pkgs.imagemagick
     pkgs.innoextract
     pkgs.lftp
     pkgs.libcaca
@@ -110,6 +111,7 @@ in
     pkgs.unrar
     pkgs.usql
     pkgs.websocat
+    pkgs.xcodegen
     pkgs.xh
     pkgs.zbar
 
