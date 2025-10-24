@@ -99,7 +99,7 @@ in
     pkgs.redis
     pkgs.ripgrep
     pkgs.rtorrent
-    pkgs.ruby_3_1
+    pkgs.ruby
     pkgs.rustup
     pkgs.rye
     pkgs.shellcheck
