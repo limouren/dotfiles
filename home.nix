@@ -61,7 +61,7 @@ in
     pkgs.devenv
     pkgs.dua
     pkgs.ffmpeg_8
-    pkgs.nginx
+    pkgs.fvm
     pkgs.fzf
     pkgs.gh
     pkgs.go
@@ -80,11 +80,12 @@ in
     pkgs.libcaca
     pkgs.libcaca.dev
     pkgs.lnav
+    pkgs.nginx
+    pkgs.nixfmt-rfc-style
     pkgs.nodejs
     pkgs.nodejs.pkgs.firebase-tools
     pkgs.nodejs.pkgs.pnpm
     pkgs.nodejs.pkgs.yarn
-    pkgs.nixfmt-rfc-style
     pkgs.nurl
     pkgs.overmind
     pkgs.p7zip
