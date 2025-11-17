@@ -46,7 +46,6 @@ in
 
   home.packages = [
     ai-tools.codex
-    ai-tools.opencode
 
     pkgs.aria2
     pkgs.asdf-vm

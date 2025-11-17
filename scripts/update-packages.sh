@@ -46,7 +46,6 @@ get_monitored_flake_tools() {
 	# List of tools from flake inputs that should be monitored for updates
 	# Add tool names here to monitor for updates from nix-ai-tools
 	cat <<EOF
-opencode
 codex
 EOF
 }
