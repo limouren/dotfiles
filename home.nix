@@ -63,6 +63,7 @@ in
     pkgs.fvm
     pkgs.fzf
     pkgs.gh
+    pkgs.git-filter-repo
     pkgs.go
     # pkgs.gopls
     # pkgs.gotools
@@ -87,6 +88,7 @@ in
     pkgs.nodejs.pkgs.yarn
     pkgs.nurl
     pkgs.overmind
+    pkgs.oxipng
     pkgs.p7zip
     pkgs.podman
     pkgs.poetry
@@ -104,6 +106,8 @@ in
     pkgs.rye
     pkgs.shellcheck
     pkgs.shfmt
+    pkgs.sops
+    pkgs.svgo
     pkgs.terminal-notifier
     pkgs.temurin-bin-17
     pkgs.terraform
