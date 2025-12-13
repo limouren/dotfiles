@@ -21,5 +21,19 @@ backup:
 restore:
 	tar xzf $(BACKUP_DIR).tar.gz
 
-	chmod 700 $(BACKUP_DIR)/$(GPG_DIRNAME)
-	chmod 700 $(BACKUP_DIR)/$(SSH_DIRNAME)
+	# Restore GPG
+	cp -r $(BACKUP_DIR)/$(GPG_DIRNAME) ~
+	chmod 700 ~/$(GPG_DIRNAME)
+	chmod 700 ~/$(GPG_DIRNAME)/openpgp-revocs.d
+	chmod 700 ~/$(GPG_DIRNAME)/private-keys-v1.d
+	chmod 600 ~/$(GPG_DIRNAME)/private-keys-v1.d/*
+	chmod 600 ~/$(GPG_DIRNAME)/gpg.conf
+	chmod 600 ~/$(GPG_DIRNAME)/pubring.kbx
+	chmod 600 ~/$(GPG_DIRNAME)/trustdb.gpg
+
+	# Restore SSH
+	cp -r $(BACKUP_DIR)/$(SSH_DIRNAME) ~
+	chmod 700 ~/$(SSH_DIRNAME)
+	chmod 600 ~/$(SSH_DIRNAME)/id_* ~/$(SSH_DIRNAME)/google_* 2>/dev/null || true
+	chmod 644 ~/$(SSH_DIRNAME)/*.pub 2>/dev/null || true
+	chmod 600 ~/$(SSH_DIRNAME)/config 2>/dev/null || true
