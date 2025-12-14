@@ -50,10 +50,12 @@ in
     pkgs.aria2
     pkgs.asdf-vm
     pkgs.ast-grep
+    pkgs.aws-sam-cli
     pkgs.blackbox
     pkgs.btop
     pkgs.bun
     pkgs.cachix
+    pkgs.certbot
     pkgs.cloudflared
     pkgs.cocoapods
     pkgs.colima
@@ -87,6 +89,7 @@ in
     pkgs.nodejs.pkgs.pnpm
     pkgs.nodejs.pkgs.yarn
     pkgs.nurl
+    pkgs.obsidian
     pkgs.overmind
     pkgs.oxipng
     pkgs.p7zip
