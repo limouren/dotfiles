@@ -38,6 +38,7 @@ get_auto_updatable_packages() {
 	# Add package names here to enable auto-updates
 	cat <<EOF
 claude-code
+pi-coding-agent
 uv
 EOF
 }
@@ -58,8 +59,20 @@ update_package() {
 	local old_version
 	old_version=$(nix eval --raw --impure --expr "(import ./packages {}).$package.version" 2>/dev/null || echo "unknown")
 
-	# Use nix-update to update the package
-	nix run github:Mic92/nix-update/1b5bc1e -- --file ./packages --version stable "$package"
+	# Check if package has a custom updateScript (string type from lib.getExe)
+	# We only use string-type scripts to avoid inherited updateScripts from nixpkgs
+	local update_script_type
+	local update_script
+	update_script_type=$(nix eval --impure --expr "builtins.typeOf ((import ./packages {}).$package.passthru.updateScript or null)" 2>/dev/null || echo "null")
+
+	if [[ "$update_script_type" == '"string"' ]]; then
+		update_script=$(nix eval --raw --impure --expr "(import ./packages {}).$package.passthru.updateScript" 2>/dev/null || echo "")
+		log "Using custom updateScript for $package..."
+		"$update_script"
+	else
+		log "Using nix-update for $package..."
+		nix run github:Mic92/nix-update/1b5bc1e -- --file ./packages --version stable "$package"
+	fi
 
 	# Check if there are changes to commit
 	if has_changes "packages/"; then
