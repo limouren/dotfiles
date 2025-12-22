@@ -50,6 +50,7 @@ in
     pkgs.aria2
     pkgs.asdf-vm
     pkgs.ast-grep
+    pkgs.awscli2
     pkgs.aws-sam-cli
     pkgs.blackbox
     pkgs.btop
