@@ -59,15 +59,11 @@ update_package() {
 	local old_version
 	old_version=$(nix eval --raw --impure --expr "(import ./packages {}).$package.version" 2>/dev/null || echo "unknown")
 
-	# Check if package has a custom updateScript (string type from lib.getExe)
-	# We only use string-type scripts to avoid inherited updateScripts from nixpkgs
-	local update_script_type
-	local update_script
-	update_script_type=$(nix eval --impure --expr "builtins.typeOf ((import ./packages {}).$package.passthru.updateScript or null)" 2>/dev/null || echo "null")
+	# Check if package has a standalone update script in packages/{package}/update.sh
+	local update_script="$REPO_ROOT/packages/$package/update.sh"
 
-	if [[ "$update_script_type" == '"string"' ]]; then
-		update_script=$(nix eval --raw --impure --expr "(import ./packages {}).$package.passthru.updateScript" 2>/dev/null || echo "")
-		log "Using custom updateScript for $package..."
+	if [[ -x "$update_script" ]]; then
+		log "Using custom update script for $package..."
 		"$update_script"
 	else
 		log "Using nix-update for $package..."
@@ -84,7 +80,12 @@ update_package() {
 			log "Updated $package: $old_version → $new_version"
 
 			# Create commit with the specified format
-			git add "packages/$package.nix"
+			# Handle both single-file (packages/$package.nix) and directory (packages/$package/) layouts
+			if [[ -d "packages/$package" ]]; then
+				git add "packages/$package/"
+			else
+				git add "packages/$package.nix"
+			fi
 			git commit -m "Update $package: $old_version -> $new_version"
 		else
 			log "Package $package: no version change detected ($old_version), skipping commit"
