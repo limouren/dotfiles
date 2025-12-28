@@ -15,7 +15,7 @@ let
     ext.pass-otp
   ]);
 
-  pinentry = pkgs.pinentry_mac;
+  pinentry = pkgs.pinentry-gnome3;
 
 in
 
@@ -23,20 +23,62 @@ in
 
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
-  home.username = "limouren";
-  home.homeDirectory = "/Users/limouren";
+  home.username = "bazzite";
+  home.homeDirectory = "/home/bazzite";
 
   home.file.gpg-agent = {
     target = ".gnupg/gpg-agent.conf";
     text = ''
-      pinentry-program ${pinentry}/${pinentry.binaryPath}
+      pinentry-program ${config.home.homeDirectory}/.local/bin/pinentry-host
+    '';
+  };
+  home.file.pinentry-host = {
+    target = ".local/bin/pinentry-host";
+    executable = true;
+    text = ''
+      #!/bin/sh
+      /usr/bin/pinentry-qt "$@"
+    '';
+  };
+  home.file.wl-copy = {
+    target = ".local/bin/wl-copy";
+    executable = true;
+    text = ''
+      #!/bin/sh
+      exec distrobox-host-exec wl-copy "$@"
+    '';
+  };
+  home.file.wl-paste = {
+    target = ".local/bin/wl-paste";
+    executable = true;
+    text = ''
+      #!/bin/sh
+      exec distrobox-host-exec wl-paste "$@"
     '';
   };
   home.file.".lnav/formats/installed/logcat_log.json".source = ./lnav-logcat.json;
-  home.file.passff-host = {
-    target = "Library/Application Support/Mozilla/NativeMessagingHosts/passff.json";
-    source = "${pkgs.passff-host}/share/passff-host/passff.json";
-  };
+  # passff-host for Flatpak Firefox - needs actual files, not symlinks,
+  # since Firefox runs on host but Nix store is inside distrobox
+  home.activation.passff-host = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+    mkdir -p "${config.home.homeDirectory}/.var/app/org.mozilla.firefox/.mozilla/native-messaging-hosts"
+    mkdir -p "${config.home.homeDirectory}/.local/bin"
+
+    cat > "${config.home.homeDirectory}/.var/app/org.mozilla.firefox/.mozilla/native-messaging-hosts/passff.json" << 'EOF'
+    ${builtins.toJSON {
+      name = "passff";
+      description = "Host for communicating with zx2c4 pass";
+      path = "${config.home.homeDirectory}/.local/bin/passff-host";
+      type = "stdio";
+      allowed_extensions = [ "passff@invicem.pro" ];
+    }}
+    EOF
+
+    cat > "${config.home.homeDirectory}/.local/bin/passff-host" << 'EOF'
+    #!/bin/sh
+    exec flatpak-spawn --host /usr/bin/distrobox-enter -n my-distrobox -- ${pkgs.passff-host}/share/passff-host/passff.py "$@"
+    EOF
+    chmod +x "${config.home.homeDirectory}/.local/bin/passff-host"
+  '';
   home.file.pass-completion = {
     target = ".config/fish/completions/pass.fish";
     source = pkgs.replaceVars ./pass-completion.fish {
@@ -58,7 +100,7 @@ in
     pkgs.cachix
     pkgs.certbot
     pkgs.cloudflared
-    pkgs.cocoapods
+    # pkgs.cocoapods
     pkgs.colima
     pkgs.devenv
     pkgs.dua
@@ -73,10 +115,11 @@ in
     # pkgs.go-outline
     pkgs.google-clasp
     ((drv: drv.withExtraComponents [ drv.components.gke-gcloud-auth-plugin ]) pkgs.google-cloud-sdk)
+    pkgs.gnumake
     pkgs.kubectl
     pkgs.kubectx
     pkgs.kubernetes-helm-wrapped
-    pkgs.idb-companion
+    # pkgs.idb-companion
     pkgs.imagemagick
     pkgs.innoextract
     pkgs.lftp
@@ -112,14 +155,15 @@ in
     pkgs.shfmt
     pkgs.sops
     pkgs.svgo
-    pkgs.terminal-notifier
+    # pkgs.terminal-notifier
     pkgs.temurin-bin-17
     pkgs.terraform
     pkgs.tree
     pkgs.unrar
     pkgs.usql
     pkgs.websocat
-    pkgs.xcodegen
+    # pkgs.wl-clipboard  # using host clipboard via distrobox-host-exec
+    # pkgs.xcodegen
     pkgs.xh
     pkgs.zbar
 
@@ -205,7 +249,8 @@ in
   nixpkgs.config.allowBroken = true;
   nixpkgs.config.allowUnfree = true;
 
-  launchd.agents.home-manager-sync = {
+  # macOS-specific configuration
+  launchd.agents.home-manager-sync = pkgs.lib.mkIf pkgs.stdenv.isDarwin {
     enable = true;
     config = {
       ProgramArguments = [

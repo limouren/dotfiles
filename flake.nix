@@ -32,12 +32,12 @@
       ...
     }:
     let
-      system = "aarch64-darwin";
+      system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
       ai-tools = nix-ai-tools.packages.${system};
     in
     {
-      homeConfigurations."limouren" = home-manager.lib.homeManagerConfiguration {
+      homeConfigurations."bazzite" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
 
         # Specify your home configuration modules here, for example,
