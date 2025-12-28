@@ -32,7 +32,7 @@ in
     pkgs.asdf-vm
     pkgs.ast-grep
     pkgs.awscli2
-    pkgs.aws-sam-cli
+    # pkgs.aws-sam-cli
     pkgs.blackbox
     pkgs.btop
     pkgs.bun
@@ -83,7 +83,7 @@ in
     pkgs.ripgrep
     pkgs.rtorrent
     pkgs.ruby
-    pkgs.rustup
+    # pkgs.rustup
     pkgs.rye
     pkgs.shellcheck
     pkgs.shfmt
@@ -136,9 +136,11 @@ in
 
   programs.git = {
     enable = true;
-    userEmail = "limouren@gmail.com";
-    userName = "Kenji Pa";
-    extraConfig = {
+    settings = {
+      user = {
+        email = "limouren@gmail.com";
+        name = "Kenji Pa";
+      };
       diff.blackbox.textconv = "gpg --use-agent -q --batch --decrypt";
       core.attributesfile = "${config.xdg.configHome}/git/attributes";
       url = {
@@ -148,11 +150,18 @@ in
       };
     };
 
-    riff.enable = true;
   };
   home.file.".config/git/attributes".text = ''
     *.gpg diff=blackbox
   '';
+
+  # git differ
+  programs.riff = {
+    enable = true;
+    enableGitIntegration = true;
+  };
+
+  programs.gitui.enable = true;
 
   programs.direnv.enable = true;
   programs.direnv.nix-direnv.enable = true;
