@@ -1,8 +1,7 @@
 {
-  description = "Home Manager configuration of limouren";
+  description = "Home Manager configuration for macOS and Linux";
 
   inputs = {
-    # Specify the source of Home Manager and Nixpkgs.
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -32,28 +31,39 @@
       ...
     }:
     let
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-      ai-tools = nix-ai-tools.packages.${system};
+      mkHome =
+        {
+          system,
+          modules,
+        }:
+        home-manager.lib.homeManagerConfiguration {
+          pkgs = nixpkgs.legacyPackages.${system};
+          inherit modules;
+          extraSpecialArgs = {
+            inherit nix-env-fish;
+            ai-tools = nix-ai-tools.packages.${system};
+          };
+        };
     in
     {
-      homeConfigurations."bazzite" = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-
-        # Specify your home configuration modules here, for example,
-        # the path to your home.nix.
+      homeConfigurations."limouren" = mkHome {
+        system = "aarch64-darwin";
         modules = [
-          ./home.nix
+          ./home-common.nix
+          ./home-darwin.nix
           mac-app-util.homeManagerModules.default
         ];
-
-        # Optionally use extraSpecialArgs
-        # to pass through arguments to home.nix
-        extraSpecialArgs = {
-          inherit nix-env-fish ai-tools;
-        };
       };
 
-      formatter.${system} = pkgs.nixfmt-tree;
+      homeConfigurations."bazzite" = mkHome {
+        system = "x86_64-linux";
+        modules = [
+          ./home-common.nix
+          ./home-bazzite.nix
+        ];
+      };
+
+      formatter.aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixfmt-tree;
+      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;
     };
 }
