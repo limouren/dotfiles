@@ -2,7 +2,6 @@
   lib,
   stdenv,
   fetchurl,
-  autoPatchelfHook,
 }:
 
 let
@@ -34,10 +33,9 @@ stdenv.mkDerivation {
 
   src = srcByPlatform.${stdenv.hostPlatform.system} or (throw "Unsupported platform: ${stdenv.hostPlatform.system}");
 
-  nativeBuildInputs = lib.optionals stdenv.hostPlatform.isLinux [ autoPatchelfHook ];
-
   dontConfigure = true;
   dontBuild = true;
+  dontStrip = true;
 
   unpackPhase = ''
     tar -xzf $src
