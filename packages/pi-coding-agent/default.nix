@@ -5,24 +5,24 @@
 }:
 
 let
-  version = "null";
+  version = "0.33.0";
 
   srcByPlatform = {
     "aarch64-darwin" = fetchurl {
       url = "https://github.com/badlogic/pi-mono/releases/download/v${version}/pi-darwin-arm64.tar.gz";
-      hash = "sha256-ABnfxLMtY8E5KqJkrtIlPB4ML7CSFvjizCabv7i7SbU=";
+      hash = "sha256-0rrGtk0+cXdBP8q1J0uVeNT4uJrxOE3HQuPT6jQki0o=";
     };
     "x86_64-darwin" = fetchurl {
       url = "https://github.com/badlogic/pi-mono/releases/download/v${version}/pi-darwin-x64.tar.gz";
-      hash = "sha256-ABnfxLMtY8E5KqJkrtIlPB4ML7CSFvjizCabv7i7SbU=";
+      hash = "sha256-tMkofnq9MObgjW03a3lrvcOFQIih1GooAC926GcRAiE=";
     };
     "x86_64-linux" = fetchurl {
       url = "https://github.com/badlogic/pi-mono/releases/download/v${version}/pi-linux-x64.tar.gz";
-      hash = "sha256-ABnfxLMtY8E5KqJkrtIlPB4ML7CSFvjizCabv7i7SbU=";
+      hash = "sha256-KPcCzpTITGqlNYaxpaHxSnhZZY5/FCPb5K+seVrCl9o=";
     };
     "aarch64-linux" = fetchurl {
       url = "https://github.com/badlogic/pi-mono/releases/download/v${version}/pi-linux-arm64.tar.gz";
-      hash = "sha256-ABnfxLMtY8E5KqJkrtIlPB4ML7CSFvjizCabv7i7SbU=";
+      hash = "sha256-DAUN9U0DBE/Yafpr7axR0JY3izWbA55eaKpe41b5+Co=";
     };
   };
 in
