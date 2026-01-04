@@ -121,6 +121,12 @@ update_nix_ai_tools_if_needed() {
 			local upstream_version
 			upstream_version=$(nix eval --raw "github:numtide/nix-ai-tools#$tool.version" 2>/dev/null || echo "unknown")
 
+			# Skip if version hasn't changed (only derivation hash changed due to dependency updates)
+			if [[ "$current_version" == "$upstream_version" ]]; then
+				log "Skipping $tool: derivation changed but version unchanged ($current_version)"
+				continue
+			fi
+
 			log "Update available for $tool: $current_version → $upstream_version"
 
 			if [[ -n "$updated_tools" ]]; then
