@@ -1,68 +1,53 @@
 {
   lib,
-  stdenv,
+  buildNpmPackage,
   fetchurl,
+  fd,
+  ripgrep,
+  runCommand,
 }:
 
 let
-  version = "0.38.0";
+  # Courtesy of https://github.com/numtide/llm-agents.nix/tree/e97b6b7f84a04ef9ae449f8af4cf8eb524673927/packages/pi
+  versionData = lib.importJSON ./hashes.json;
+  version = versionData.version;
 
-  srcByPlatform = {
-    "aarch64-darwin" = fetchurl {
-      url = "https://github.com/badlogic/pi-mono/releases/download/v${version}/pi-darwin-arm64.tar.gz";
-      hash = "sha256-dlQPow355pWzKFs938oJuuil3YfHcNz3q2s+5PxYuPE=";
-    };
-    "x86_64-darwin" = fetchurl {
-      url = "https://github.com/badlogic/pi-mono/releases/download/v${version}/pi-darwin-x64.tar.gz";
-      hash = "sha256-4QQhjz7qmzhocftb7ox260vSGUclAnLYajnnNApKx2k=";
-    };
-    "x86_64-linux" = fetchurl {
-      url = "https://github.com/badlogic/pi-mono/releases/download/v${version}/pi-linux-x64.tar.gz";
-      hash = "sha256-dbKe01Og5uGoNsX85D8/lkNyGkVSPPNGedSAJF7M5SI=";
-    };
-    "aarch64-linux" = fetchurl {
-      url = "https://github.com/badlogic/pi-mono/releases/download/v${version}/pi-linux-arm64.tar.gz";
-      hash = "sha256-P4TjpKHb9mdKjn7W9UMHEdUN12YOGC3W7OEDco/MSEU=";
-    };
-  };
+  srcWithLock = runCommand "pi-src-with-lock" { } ''
+    mkdir -p $out
+    tar -xzf ${
+      fetchurl {
+        url = "https://registry.npmjs.org/@mariozechner/pi-coding-agent/-/pi-coding-agent-${version}.tgz";
+        hash = versionData.sourceHash;
+      }
+    } -C $out --strip-components=1
+    cp ${./package-lock.json} $out/package-lock.json
+  '';
 in
-
-stdenv.mkDerivation {
+buildNpmPackage {
   pname = "pi-coding-agent";
   inherit version;
 
-  src = srcByPlatform.${stdenv.hostPlatform.system} or (throw "Unsupported platform: ${stdenv.hostPlatform.system}");
+  src = srcWithLock;
 
-  dontConfigure = true;
-  dontBuild = true;
-  dontStrip = true;
+  npmDepsHash = versionData.npmDepsHash;
 
-  unpackPhase = ''
-    tar -xzf $src
-  '';
+  dontNpmBuild = true;
 
-  installPhase = ''
-    runHook preInstall
-
-    mkdir -p $out/lib/pi-coding-agent
-    cp -r . $out/lib/pi-coding-agent/
-
-    mkdir -p $out/bin
-    ln -s $out/lib/pi-coding-agent/pi $out/bin/pi
-
-    runHook postInstall
+  postInstall = ''
+    wrapProgram $out/bin/pi \
+      --prefix PATH : ${
+        lib.makeBinPath [
+          fd
+          ripgrep
+        ]
+      }
   '';
 
   meta = {
     description = "Terminal-based coding agent with multi-model support";
     homepage = "https://github.com/badlogic/pi-mono";
+    changelog = "https://github.com/badlogic/pi-mono/releases";
     license = lib.licenses.mit;
-    platforms = [
-      "aarch64-darwin"
-      "x86_64-darwin"
-      "x86_64-linux"
-      "aarch64-linux"
-    ];
     mainProgram = "pi";
   };
 }

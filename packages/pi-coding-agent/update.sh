@@ -2,19 +2,59 @@
 
 set -euo pipefail
 
-version=$(curl -s "https://api.github.com/repos/badlogic/pi-mono/releases/latest" | jq -r '.tag_name' | sed 's/^v//')
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+HASHES_FILE="$SCRIPT_DIR/hashes.json"
+NPM_PACKAGE="@mariozechner/pi-coding-agent"
 
-base_url="https://github.com/badlogic/pi-mono/releases/download/v$version"
+current_version=$(jq -r '.version' "$HASHES_FILE")
+latest_version=$(curl -s "https://registry.npmjs.org/$NPM_PACKAGE/latest" | jq -r '.version')
 
-darwin_arm64_hash="sha256-$(curl -sL "$base_url/pi-darwin-arm64.tar.gz" | openssl dgst -sha256 -binary | openssl base64)"
-darwin_x64_hash="sha256-$(curl -sL "$base_url/pi-darwin-x64.tar.gz" | openssl dgst -sha256 -binary | openssl base64)"
-linux_x64_hash="sha256-$(curl -sL "$base_url/pi-linux-x64.tar.gz" | openssl dgst -sha256 -binary | openssl base64)"
-linux_arm64_hash="sha256-$(curl -sL "$base_url/pi-linux-arm64.tar.gz" | openssl dgst -sha256 -binary | openssl base64)"
+echo "Current: $current_version, Latest: $latest_version"
 
-sed -i '' -E \
-	-e 's|(version = )"[^"]+";|\1"'"$version"'";|' \
-	-e '/aarch64-darwin.*fetchurl/,/};/ s|(hash = )"sha256-[A-Za-z0-9+/]+=";|\1"'"$darwin_arm64_hash"'";|' \
-	-e '/x86_64-darwin.*fetchurl/,/};/ s|(hash = )"sha256-[A-Za-z0-9+/]+=";|\1"'"$darwin_x64_hash"'";|' \
-	-e '/x86_64-linux.*fetchurl/,/};/ s|(hash = )"sha256-[A-Za-z0-9+/]+=";|\1"'"$linux_x64_hash"'";|' \
-	-e '/aarch64-linux.*fetchurl/,/};/ s|(hash = )"sha256-[A-Za-z0-9+/]+=";|\1"'"$linux_arm64_hash"'";|' \
-	./packages/pi-coding-agent/default.nix
+if [[ "$current_version" == "$latest_version" ]]; then
+	echo "Already up to date"
+	exit 0
+fi
+
+tarball_url="https://registry.npmjs.org/$NPM_PACKAGE/-/pi-coding-agent-$latest_version.tgz"
+
+echo "Downloading tarball..."
+tarball_file=$(mktemp)
+curl -sL "$tarball_url" -o "$tarball_file"
+
+echo "Calculating source hash..."
+source_hash=$(nix hash file "$tarball_file")
+
+echo "Extracting and generating package-lock.json..."
+extract_dir=$(mktemp -d)
+tar -xzf "$tarball_file" -C "$extract_dir" --strip-components=1
+cd "$extract_dir"
+npm install --package-lock-only --ignore-scripts 2>/dev/null
+cp package-lock.json "$SCRIPT_DIR/package-lock.json"
+cd "$SCRIPT_DIR/../.."
+
+echo "Updating hashes.json with placeholder..."
+jq --arg version "$latest_version" \
+	--arg sourceHash "$source_hash" \
+	'.version = $version | .sourceHash = $sourceHash | .npmDepsHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="' \
+	"$HASHES_FILE" >"$HASHES_FILE.tmp" && mv "$HASHES_FILE.tmp" "$HASHES_FILE"
+
+echo "Building to get npmDepsHash..."
+build_log=$(mktemp)
+nix-build -E 'let pkgs = import <nixpkgs> {}; in pkgs.callPackage ./packages/pi-coding-agent {}' >"$build_log" 2>&1 || true
+npm_deps_hash=$(grep "got:" "$build_log" | awk '{print $2}')
+rm -f "$build_log"
+
+if [[ -z "$npm_deps_hash" ]]; then
+	echo "Error: Failed to get npmDepsHash"
+	exit 1
+fi
+
+echo "Updating hashes.json with correct npmDepsHash..."
+jq --arg npmDepsHash "$npm_deps_hash" \
+	'.npmDepsHash = $npmDepsHash' \
+	"$HASHES_FILE" >"$HASHES_FILE.tmp" && mv "$HASHES_FILE.tmp" "$HASHES_FILE"
+
+rm -rf "$extract_dir" "$tarball_file"
+
+echo "Updated to $latest_version"
