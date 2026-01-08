@@ -88,6 +88,7 @@ in
     pkgs.shellcheck
     pkgs.shfmt
     pkgs.sops
+    pkgs.supabase-cli
     pkgs.svgo
     pkgs.temurin-bin-17
     pkgs.terraform
