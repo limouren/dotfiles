@@ -37,6 +37,7 @@ in
     pkgs.btop
     pkgs.bun
     pkgs.cachix
+
     pkgs.certbot
     pkgs.cloudflared
     pkgs.colima
@@ -96,6 +97,7 @@ in
     pkgs.unrar
     pkgs.usql
     pkgs.websocat
+    pkgs.python3Packages.weasyprint
     pkgs.xh
     pkgs.zbar
 
