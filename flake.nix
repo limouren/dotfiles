@@ -7,10 +7,6 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    mac-app-util = {
-      url = "github:hraban/mac-app-util";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     nix-env-fish = {
       url = "github:lilyball/nix-env.fish";
       flake = false;
@@ -25,7 +21,6 @@
     {
       nixpkgs,
       home-manager,
-      mac-app-util,
       nix-env-fish,
       nix-ai-tools,
       ...
@@ -51,7 +46,6 @@
         modules = [
           ./home-common.nix
           ./home-darwin.nix
-          mac-app-util.homeManagerModules.default
         ];
       };
 

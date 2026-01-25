@@ -29,7 +29,7 @@ in
     pkgs.cocoapods
     pkgs.idb-companion
     pkgs.terminal-notifier
-    pkgs.xcodegen
+    # pkgs.xcodegen
 
     pinentry
   ];

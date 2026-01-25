@@ -33,7 +33,7 @@ in
     pkgs.ast-grep
     pkgs.awscli2
     # pkgs.aws-sam-cli
-    pkgs.blackbox
+    # pkgs.blackbox
     pkgs.btop
     pkgs.bun
     pkgs.cachix
@@ -62,9 +62,9 @@ in
     pkgs.libcaca.dev
     pkgs.lnav
     pkgs.nginx
-    pkgs.nixfmt-rfc-style
+    pkgs.nixfmt
     pkgs.nodejs
-    pkgs.nodejs.pkgs.firebase-tools
+    # pkgs.nodejs.pkgs.firebase-tools
     pkgs.nodejs.pkgs.pnpm
     pkgs.nodejs.pkgs.yarn
     pkgs.nurl
@@ -94,6 +94,7 @@ in
     pkgs.temurin-bin-17
     pkgs.terraform
     pkgs.tree
+    pkgs.typescript-go
     pkgs.unrar
     pkgs.usql
     pkgs.websocat

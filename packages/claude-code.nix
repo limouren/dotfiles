@@ -1,15 +1,30 @@
 {
-  fetchurl,
+  fetchzip,
+  fetchNpmDeps,
   claude-code,
 }:
 
+let
+  version = "2.1.19";
+  src = fetchzip {
+    url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${version}.tgz";
+    hash = "sha256-K2fJf1eRAyqmtAvKBzpAtMohQ4B1icwC9yf5zEf52C8=";
+  };
+  postPatch = ''
+    cp ${./claude-code-package-lock.json} package-lock.json
+    substituteInPlace cli.js \
+      --replace-warn '#!/bin/bash' '#!/usr/bin/env bash'
+  '';
+in
 claude-code.overrideAttrs (
   finalAttrs: prevAttrs: {
-    version = "2.1.19";
+    inherit version src postPatch;
 
-    src = fetchurl {
-      url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${finalAttrs.version}.tgz";
-      hash = "sha256-8nJWc74kVvRzFr6KSHbiv5mB6tb+29PJ1o9wkteypKw=";
+    # Must explicitly recalculate npmDeps when src changes
+    npmDeps = fetchNpmDeps {
+      inherit src postPatch;
+      name = "claude-code-${version}-npm-deps";
+      hash = "sha256-C8HVKSz1ZQmYNMoLUKk2XUpf5y+Np4nTacCGMVEqO8c=";
     };
   }
 )
