@@ -33,16 +33,16 @@ in
 
   # passff-host for Flatpak Firefox
   home.activation.passff-host = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    run mkdir -p "${config.home.homeDirectory}/.var/app/org.mozilla.firefox/.mozilla/native-messaging-hosts"
-    run mkdir -p "${config.home.homeDirectory}/.local/bin"
+        run mkdir -p "${config.home.homeDirectory}/.var/app/org.mozilla.firefox/.mozilla/native-messaging-hosts"
+        run mkdir -p "${config.home.homeDirectory}/.local/bin"
 
-    run cat > "${config.home.homeDirectory}/.var/app/org.mozilla.firefox/.mozilla/native-messaging-hosts/passff.json" << 'EOF'
-${passffJson}
-EOF
+        run cat > "${config.home.homeDirectory}/.var/app/org.mozilla.firefox/.mozilla/native-messaging-hosts/passff.json" << 'EOF'
+    ${passffJson}
+    EOF
 
-    run cat > "${config.home.homeDirectory}/.local/bin/passff-host" << 'EOF'
-${passffHostScript}
-EOF
-    run chmod +x "${config.home.homeDirectory}/.local/bin/passff-host"
+        run cat > "${config.home.homeDirectory}/.local/bin/passff-host" << 'EOF'
+    ${passffHostScript}
+    EOF
+        run chmod +x "${config.home.homeDirectory}/.local/bin/passff-host"
   '';
 }
