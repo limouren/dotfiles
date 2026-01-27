@@ -61,6 +61,7 @@ in
     pkgs.libcaca
     pkgs.libcaca.dev
     pkgs.lnav
+    pkgs.mpv
     pkgs.nginx
     pkgs.nixfmt
     pkgs.nodejs
