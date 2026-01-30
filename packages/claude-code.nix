@@ -5,10 +5,10 @@
 }:
 
 let
-  version = "2.1.21";
+  version = "2.1.25";
   src = fetchzip {
     url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${version}.tgz";
-    hash = "sha256-WO1tomN8587HApMOGV50TRwobd4jMUq1CqXUBD7YBH4=";
+    hash = "sha256-61tEjrW4WFAbichsQJwAUjEecMiDmYGvgeqAhuqs3IA=";
   };
   postPatch = ''
     cp ${./claude-code-package-lock.json} package-lock.json
