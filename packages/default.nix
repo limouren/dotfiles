@@ -8,5 +8,6 @@
   uv = pkgs.callPackage ./uv.nix { };
 }
 // pkgs.lib.optionalAttrs pkgs.stdenv.isDarwin {
+  class-dump = pkgs.callPackage ./class-dump.nix { };
   mssql-tools = pkgs.callPackage ./mssql-tools.nix { };
 }
