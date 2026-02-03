@@ -47,6 +47,7 @@ in
     pkgs.fvm
     pkgs.fzf
     pkgs.gh
+    pkgs.ghidra-bin
     pkgs.git-filter-repo
     pkgs.go
     pkgs.google-clasp
