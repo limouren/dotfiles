@@ -39,7 +39,6 @@ get_auto_updatable_packages() {
 	cat <<EOF
 claude-code
 pi-coding-agent
-uv
 EOF
 }
 

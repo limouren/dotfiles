@@ -76,6 +76,7 @@ in
     pkgs.pwgen
     pkgs.python312
     pkgs.qemu
+    pkgs.uv
     pkgs.yq-go
     pkgs.yt-dlp
     pkgs.redis
