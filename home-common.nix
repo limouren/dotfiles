@@ -33,7 +33,6 @@ in
     pkgs.ast-grep
     pkgs.awscli2
     # pkgs.aws-sam-cli
-    # pkgs.blackbox
     pkgs.btop
     pkgs.bun
     pkgs.cachix

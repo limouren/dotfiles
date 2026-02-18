@@ -3,6 +3,7 @@
 }:
 
 {
+  blackbox = pkgs.callPackage ./blackbox.nix { };
   claude-code = pkgs.callPackage ./claude-code.nix { };
   pi-coding-agent = pkgs.callPackage ./pi-coding-agent { };
   uv = pkgs.callPackage ./uv.nix { };
