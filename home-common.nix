@@ -2,7 +2,6 @@
   config,
   pkgs,
   nix-env-fish,
-  ai-tools,
   ...
 }:
 
@@ -26,8 +25,6 @@ in
   };
 
   home.packages = [
-    ai-tools.codex
-
     pkgs.aria2
     pkgs.asdf-vm
     pkgs.ast-grep

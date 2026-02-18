@@ -11,10 +11,6 @@
       url = "github:lilyball/nix-env.fish";
       flake = false;
     };
-    nix-ai-tools = {
-      url = "github:numtide/nix-ai-tools";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
@@ -22,7 +18,6 @@
       nixpkgs,
       home-manager,
       nix-env-fish,
-      nix-ai-tools,
       ...
     }:
     let
@@ -36,7 +31,6 @@
           inherit modules;
           extraSpecialArgs = {
             inherit nix-env-fish;
-            ai-tools = nix-ai-tools.packages.${system};
           };
         };
     in

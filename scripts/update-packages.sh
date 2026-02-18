@@ -43,14 +43,6 @@ uv
 EOF
 }
 
-get_monitored_flake_tools() {
-	# List of tools from flake inputs that should be monitored for updates
-	# Add tool names here to monitor for updates from nix-ai-tools
-	cat <<EOF
-codex
-EOF
-}
-
 update_package() {
 	local package="$1"
 	log "Updating $package..."
@@ -95,73 +87,6 @@ update_package() {
 	fi
 }
 
-update_nix_ai_tools_if_needed() {
-	log "Checking nix-ai-tools for updates..."
-
-	# Get list of monitored tools
-	local monitored_tools
-	monitored_tools=$(get_monitored_flake_tools)
-
-	# Collect information about tools with updates
-	local updated_tools=""
-	local has_updates=false
-	local tool_version_changes=""
-	while IFS= read -r tool; do
-		local current_hash
-		current_hash=$(nix eval --raw --impure --expr "let system = builtins.currentSystem; in (builtins.getFlake (toString ./.)).inputs.nix-ai-tools.packages.\${system}.$tool.drvPath" 2>/dev/null || echo "not-available")
-
-		local upstream_hash
-		upstream_hash=$(nix eval --raw "github:numtide/nix-ai-tools#$tool.drvPath" 2>/dev/null || echo "not-available")
-
-		if [[ "$current_hash" != "$upstream_hash" ]]; then
-			# Get current and upstream versions
-			local current_version
-			current_version=$(nix eval --raw --impure --expr "let system = builtins.currentSystem; in (builtins.getFlake (toString ./.)).inputs.nix-ai-tools.packages.\${system}.$tool.version" 2>/dev/null || echo "unknown")
-
-			local upstream_version
-			upstream_version=$(nix eval --raw "github:numtide/nix-ai-tools#$tool.version" 2>/dev/null || echo "unknown")
-
-			# Skip if version hasn't changed (only derivation hash changed due to dependency updates)
-			if [[ "$current_version" == "$upstream_version" ]]; then
-				log "Skipping $tool: derivation changed but version unchanged ($current_version)"
-				continue
-			fi
-
-			log "Update available for $tool: $current_version → $upstream_version"
-
-			if [[ -n "$updated_tools" ]]; then
-				updated_tools="$updated_tools, $tool"
-				tool_version_changes="$tool_version_changes, $tool: $current_version -> $upstream_version"
-			else
-				updated_tools="$tool"
-				tool_version_changes="$tool: $current_version -> $upstream_version"
-			fi
-			has_updates=true
-		fi
-	done <<<"$monitored_tools"
-
-	if [[ "$has_updates" == "true" ]]; then
-		log "Tool updates found for: $updated_tools"
-		log "Updating nix-ai-tools..."
-
-		# Update the flake
-		nix flake update nix-ai-tools
-
-		# Check if there are changes to commit
-		if has_changes "flake.lock"; then
-			log "Updated nix-ai-tools: $tool_version_changes"
-
-			# Create commit for flake update with version changes
-			git add flake.lock
-			git commit -m "Update $tool_version_changes"
-		else
-			log "nix-ai-tools: no changes detected in flake.lock"
-		fi
-	else
-		log "No tool updates available in nix-ai-tools"
-	fi
-}
-
 rebuild_home_manager() {
 	log "Rebuilding Home Manager configuration..."
 	cd "$REPO_ROOT"
@@ -197,9 +122,6 @@ main() {
 		log "Usage: $0 [package-name|all]"
 		exit 1
 	fi
-
-	# Check nix-ai-tools for updates
-	update_nix_ai_tools_if_needed
 
 	# Rebuild Home Manager configuration
 	rebuild_home_manager
