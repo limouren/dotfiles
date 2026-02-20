@@ -97,6 +97,7 @@ in
     pkgs.unrar
     pkgs.usql
     pkgs.websocat
+    pkgs.wrangler
     pkgs.python3Packages.weasyprint
     pkgs.xh
     pkgs.zbar
