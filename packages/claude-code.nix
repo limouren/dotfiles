@@ -24,7 +24,7 @@ claude-code.overrideAttrs (
     npmDeps = fetchNpmDeps {
       inherit src postPatch;
       name = "claude-code-${version}-npm-deps";
-      hash = "sha256-C8HVKSz1ZQmYNMoLUKk2XUpf5y+Np4nTacCGMVEqO8c=";
+      hash = "sha256-/oQxdQjMVS8r7e1DUPEjhWOLOD/hhVCx8gjEWb3ipZQ=";
     };
   }
 )
