@@ -70,8 +70,8 @@ in
     pkgs.overmind
     pkgs.oxipng
     pkgs.p7zip
-    pkgs.php
-    pkgs.phpPackages.composer
+    pkgs.php83
+    pkgs.php83Packages.composer
     pkgs.podman
     pkgs.poetry
     pkgs.postgresql
