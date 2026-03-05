@@ -53,6 +53,7 @@ in
     pkgs.kubectx
     pkgs.kubernetes-helm-wrapped
     pkgs.imagemagick
+    pkgs.mitmproxy
     pkgs.innoextract
     pkgs.lftp
     pkgs.libcaca
@@ -103,6 +104,7 @@ in
     pkgs.python3Packages.weasyprint
     pkgs.xh
     pkgs.zbar
+    pkgs.zstd
 
     # gpg
     pkgs.gnupg
