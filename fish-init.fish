@@ -19,11 +19,6 @@ if test (uname) = Darwin
     if test -d '/Applications/Sublime Text.app/Contents/SharedSupport/bin'
         set PATH $PATH '/Applications/Sublime Text.app/Contents/SharedSupport/bin'
     end
-
-    # Point Docker to Podman machine socket
-    if command -v podman &>/dev/null
-        set -gx DOCKER_HOST "unix://"(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}' 2>/dev/null)
-    end
 end
 
 # Ensure local bin precedes nix profile
