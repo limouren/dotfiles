@@ -93,7 +93,7 @@ in
     pkgs.sops
     pkgs.supabase-cli
     pkgs.svgo
-    pkgs.temurin-bin-17
+    pkgs.temurin-bin-21
     pkgs.terraform
     pkgs.tree
     pkgs.typescript-go
