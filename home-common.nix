@@ -25,6 +25,7 @@ in
   };
 
   home.packages = [
+    pkgs.argocd
     pkgs.aria2
     pkgs.asdf-vm
     pkgs.ast-grep
@@ -53,6 +54,7 @@ in
     pkgs.kubectx
     pkgs.kubernetes-helm-wrapped
     pkgs.imagemagick
+    pkgs.minikube
     pkgs.mitmproxy
     pkgs.innoextract
     pkgs.lftp
@@ -74,6 +76,7 @@ in
     pkgs.p7zip
     pkgs.php83
     pkgs.php83Packages.composer
+    pkgs.podlet
     pkgs.podman
     pkgs.poetry
     pkgs.postgresql
