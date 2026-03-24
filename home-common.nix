@@ -68,6 +68,7 @@ in
     pkgs.nodejs.pkgs.yarn
     pkgs.nurl
     pkgs.obsidian
+    pkgs.opentofu
     pkgs.overmind
     pkgs.oxipng
     pkgs.p7zip
@@ -94,7 +95,6 @@ in
     pkgs.supabase-cli
     pkgs.svgo
     pkgs.temurin-bin-21
-    pkgs.terraform
     pkgs.tree
     pkgs.typescript-go
     pkgs.unrar
