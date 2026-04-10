@@ -50,6 +50,7 @@ in
     pkgs.google-clasp
     ((drv: drv.withExtraComponents [ drv.components.gke-gcloud-auth-plugin ]) pkgs.google-cloud-sdk)
     pkgs.gnumake
+    pkgs.gradle_9
     pkgs.kubectl
     pkgs.kubectx
     pkgs.kubernetes-helm-wrapped
