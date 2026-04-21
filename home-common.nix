@@ -31,6 +31,7 @@ in
     pkgs.ast-grep
     pkgs.awscli2
     # pkgs.aws-sam-cli
+    pkgs.azure-cli
     pkgs.btop
     pkgs.bun
     pkgs.cachix
@@ -40,6 +41,7 @@ in
     pkgs.colima
     pkgs.devenv
     pkgs.dua
+    pkgs.envsubst
     pkgs.ffmpeg_8
     pkgs.fvm
     pkgs.fzf
