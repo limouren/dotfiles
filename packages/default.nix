@@ -4,7 +4,7 @@
 
 {
   blackbox = pkgs.callPackage ./blackbox.nix { };
-  claude-code = pkgs.callPackage ./claude-code.nix { };
+  claude-code = pkgs.callPackage ./claude-code { };
   gws-bin = pkgs.callPackage ./gws-bin.nix { };
   pi-coding-agent = pkgs.callPackage ./pi-coding-agent { };
 }
