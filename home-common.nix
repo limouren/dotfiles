@@ -69,8 +69,8 @@ in
     pkgs.nixfmt
     pkgs.nodejs
     # pkgs.nodejs.pkgs.firebase-tools
-    pkgs.nodejs.pkgs.pnpm
-    pkgs.nodejs.pkgs.yarn
+    pkgs.pnpm
+    pkgs.yarn
     pkgs.nurl
     pkgs.obsidian
     pkgs.opentofu
