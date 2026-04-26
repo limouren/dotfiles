@@ -55,7 +55,9 @@ in
     pkgs.gradle_9
     pkgs.kubectl
     pkgs.kubectx
-    pkgs.kubernetes-helm-wrapped
+    (pkgs.wrapHelm pkgs.kubernetes-helm {
+      plugins = [ pkgs.kubernetes-helmPlugins.helm-secrets ];
+    })
     pkgs.imagemagick
     pkgs.minikube
     pkgs.mitmproxy
