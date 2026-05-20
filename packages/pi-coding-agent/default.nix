@@ -16,10 +16,12 @@ let
     mkdir -p $out
     tar -xzf ${
       fetchurl {
-        url = "https://registry.npmjs.org/@mariozechner/pi-coding-agent/-/pi-coding-agent-${version}.tgz";
+        url = "https://registry.npmjs.org/@earendil-works/pi-coding-agent/-/pi-coding-agent-${version}.tgz";
         hash = versionData.sourceHash;
       }
     } -C $out --strip-components=1
+    # Upstream shrinkwrap omits some integrities; use our generated package-lock instead.
+    rm -f $out/npm-shrinkwrap.json
     cp ${./package-lock.json} $out/package-lock.json
   '';
 in
@@ -45,8 +47,8 @@ buildNpmPackage {
 
   meta = {
     description = "Terminal-based coding agent with multi-model support";
-    homepage = "https://github.com/badlogic/pi-mono";
-    changelog = "https://github.com/badlogic/pi-mono/releases";
+    homepage = "https://github.com/earendil-works/pi";
+    changelog = "https://github.com/earendil-works/pi/releases";
     license = lib.licenses.mit;
     mainProgram = "pi";
   };

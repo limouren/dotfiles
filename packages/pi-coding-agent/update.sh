@@ -5,7 +5,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 HASHES_FILE="$SCRIPT_DIR/hashes.json"
-NPM_PACKAGE="@mariozechner/pi-coding-agent"
+NPM_PACKAGE="@earendil-works/pi-coding-agent"
 
 # Clean up temp files on exit
 cleanup() {
@@ -36,6 +36,8 @@ echo "Extracting and generating package-lock.json..."
 extract_dir=$(mktemp -d)
 tar -xzf "$tarball_file" -C "$extract_dir" --strip-components=1
 cd "$extract_dir"
+# Upstream shrinkwrap omits some integrities; generate a full package-lock instead.
+rm -f npm-shrinkwrap.json
 npm install --package-lock-only --ignore-scripts 2>/dev/null
 cp package-lock.json "$SCRIPT_DIR/package-lock.json"
 
