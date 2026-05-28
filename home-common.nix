@@ -35,9 +35,9 @@ in
     pkgs.btop
     pkgs.bun
     pkgs.cachix
-
     pkgs.certbot
     pkgs.cloudflared
+    pkgs.codex
     pkgs.colima
     pkgs.devenv
     pkgs.dua
@@ -76,6 +76,7 @@ in
     pkgs.nurl
     pkgs.obsidian
     pkgs.opentofu
+    pkgs.oracle-instantclient
     pkgs.overmind
     pkgs.oxipng
     pkgs.p7zip
