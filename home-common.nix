@@ -34,6 +34,7 @@ in
     pkgs.azure-cli
     pkgs.btop
     pkgs.bun
+    pkgs.cabextract
     pkgs.cachix
     pkgs.certbot
     pkgs.cloudflared
