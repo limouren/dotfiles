@@ -81,6 +81,7 @@ in
     pkgs.overmind
     pkgs.oxipng
     pkgs.p7zip
+    pkgs.pandoc
     pkgs.php83
     pkgs.php83Packages.composer
     pkgs.podlet
