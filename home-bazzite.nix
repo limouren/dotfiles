@@ -31,6 +31,21 @@ in
     '';
   };
 
+  services.flatpak = {
+    enable = true;
+    packages = [
+      "io.github.ilya_zlobintsev.LACT"
+    ];
+    update.auto = {
+      enable = true;
+      onCalendar = "weekly";
+    };
+  };
+
+  programs.fish.shellAliases = {
+    lact = "flatpak run io.github.ilya_zlobintsev.LACT";
+  };
+
   # passff-host for Flatpak Firefox
   home.activation.passff-host = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         run mkdir -p "${config.home.homeDirectory}/.var/app/org.mozilla.firefox/.mozilla/native-messaging-hosts"

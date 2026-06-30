@@ -26,14 +26,15 @@ in
   };
 
   home.file.".docker/contexts/meta/${builtins.hashString "sha256" "podman"}/meta.json".text =
-    builtins.toJSON {
-      Name = "podman";
-      Metadata.Description = "Podman Machine";
-      Endpoints.docker = {
-        Host = "unix:///var/folders/d_/ztr6kc0s6_93ywr4cf51p7k00000gn/T/podman/podman-machine-default-api.sock";
-        SkipTLSVerify = false;
+    builtins.toJSON
+      {
+        Name = "podman";
+        Metadata.Description = "Podman Machine";
+        Endpoints.docker = {
+          Host = "unix:///var/folders/d_/ztr6kc0s6_93ywr4cf51p7k00000gn/T/podman/podman-machine-default-api.sock";
+          SkipTLSVerify = false;
+        };
       };
-    };
 
   home.packages = [
     pkgs.cocoapods

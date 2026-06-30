@@ -11,6 +11,7 @@
       url = "github:lilyball/nix-env.fish";
       flake = false;
     };
+    nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
   };
 
   outputs =
@@ -18,6 +19,7 @@
       nixpkgs,
       home-manager,
       nix-env-fish,
+      nix-flatpak,
       ...
     }:
     let
@@ -46,6 +48,7 @@
       homeConfigurations."bazzite" = mkHome {
         system = "x86_64-linux";
         modules = [
+          nix-flatpak.homeManagerModules.nix-flatpak
           ./home-common.nix
           ./home-bazzite.nix
         ];
