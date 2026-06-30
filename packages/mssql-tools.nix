@@ -2,9 +2,9 @@
   lib,
   stdenv,
   fetchurl,
-  unixODBC,
+  unixodbc,
   openssl,
-  unixODBCDrivers,
+  unixodbcDrivers,
   makeWrapper,
 }:
 
@@ -26,7 +26,7 @@ stdenv.mkDerivation rec {
   );
 
   buildInputs = [
-    unixODBC
+    unixodbc
     openssl
   ];
 
@@ -60,7 +60,7 @@ stdenv.mkDerivation rec {
     cat > $out/etc/odbcinst.ini <<EOF
     [ODBC Driver 18 for SQL Server]
     Description=Microsoft ODBC Driver 18 for SQL Server
-    Driver=${unixODBCDrivers.msodbcsql18}/lib/libmsodbcsql.18.dylib
+    Driver=${unixodbcDrivers.msodbcsql18}/lib/libmsodbcsql.18.dylib
     UsageCount=1
     EOF
 
@@ -76,7 +76,7 @@ stdenv.mkDerivation rec {
     ${lib.optionalString stdenv.hostPlatform.isDarwin ''
       for binary in .sqlcmd-unwrapped .bcp-unwrapped; do
         # Fix ODBC library path
-        install_name_tool -change /opt/homebrew/lib/libodbc.2.dylib ${unixODBC}/lib/libodbc.2.dylib $out/bin/$binary || true
+        install_name_tool -change /opt/homebrew/lib/libodbc.2.dylib ${unixodbc}/lib/libodbc.2.dylib $out/bin/$binary || true
         # Fix OpenSSL library paths
         install_name_tool -change /opt/homebrew/lib/libssl.3.dylib ${openssl}/lib/libssl.3.dylib $out/bin/$binary || true
         install_name_tool -change /opt/homebrew/lib/libcrypto.3.dylib ${openssl}/lib/libcrypto.3.dylib $out/bin/$binary || true
