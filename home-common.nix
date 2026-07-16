@@ -88,6 +88,7 @@ in
     pkgs.podman
     pkgs.poetry
     pkgs.postgresql
+    pkgs.probe-rs-tools
     pkgs.pwgen
     pkgs.python312
     pkgs.qemu
