@@ -60,7 +60,6 @@ in
       plugins = [ pkgs.kubernetes-helmPlugins.helm-secrets ];
     })
     pkgs.imagemagick
-    pkgs.minikube
     pkgs.mitmproxy
     pkgs.innoextract
     pkgs.lftp
