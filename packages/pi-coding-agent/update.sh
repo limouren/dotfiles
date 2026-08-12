@@ -38,11 +38,11 @@ tar -xzf "$tarball_file" -C "$extract_dir" --strip-components=1
 cd "$extract_dir"
 # Upstream shrinkwrap omits some integrities; generate a full package-lock instead.
 rm -f npm-shrinkwrap.json
-npm install --package-lock-only --ignore-scripts 2>/dev/null
+npm install --package-lock-only --ignore-scripts
 cp package-lock.json "$SCRIPT_DIR/package-lock.json"
 
 echo "Calculating npmDepsHash..."
-npm_deps_hash=$(nix shell nixpkgs#prefetch-npm-deps --command prefetch-npm-deps "$SCRIPT_DIR/package-lock.json" 2>/dev/null)
+npm_deps_hash=$(nix shell nixpkgs#prefetch-npm-deps --command prefetch-npm-deps "$SCRIPT_DIR/package-lock.json")
 
 if [[ -z "$npm_deps_hash" ]]; then
 	echo "Error: Failed to calculate npmDepsHash" >&2
