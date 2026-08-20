@@ -54,6 +54,7 @@ in
     ((drv: drv.withExtraComponents [ drv.components.gke-gcloud-auth-plugin ]) pkgs.google-cloud-sdk)
     pkgs.gnumake
     pkgs.gradle_9
+    pkgs.k6
     pkgs.kubectl
     pkgs.kubectx
     (pkgs.wrapHelm pkgs.kubernetes-helm {
