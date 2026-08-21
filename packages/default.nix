@@ -6,6 +6,7 @@
   blackbox = pkgs.callPackage ./blackbox.nix { };
   claude-code = pkgs.callPackage ./claude-code { };
   gws-bin = pkgs.callPackage ./gws-bin.nix { };
+  kube-authgear-login = pkgs.callPackage ./kube-authgear-login.nix { };
   pi-coding-agent = pkgs.callPackage ./pi-coding-agent { };
 }
 // pkgs.lib.optionalAttrs pkgs.stdenv.isDarwin {
