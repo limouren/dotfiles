@@ -26,6 +26,7 @@ in
 
   home.packages = [
     pkgs.argocd
+    pkgs.argo-workflows
     pkgs.aria2
     pkgs.asdf-vm
     pkgs.ast-grep
@@ -55,6 +56,7 @@ in
     pkgs.gnumake
     pkgs.gradle_9
     pkgs.k6
+    pkgs.kargo
     pkgs.kubectl
     pkgs.kubectx
     (pkgs.wrapHelm pkgs.kubernetes-helm {
