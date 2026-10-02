@@ -110,7 +110,7 @@ in
     pkgs.svgo
     pkgs.temurin-bin-21
     pkgs.tree
-    pkgs.typescript-go
+    pkgs.typescript
     pkgs.unrar
     pkgs.usql
     pkgs.websocat

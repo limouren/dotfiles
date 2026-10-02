@@ -9,7 +9,7 @@
   kube-authgear-login = pkgs.callPackage ./kube-authgear-login.nix { };
   pi-coding-agent = pkgs.callPackage ./pi-coding-agent { };
 }
-// pkgs.lib.optionalAttrs pkgs.stdenv.isDarwin {
+// pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
   class-dump = pkgs.callPackage ./class-dump.nix { };
   mssql-tools = pkgs.callPackage ./mssql-tools.nix { };
 }
