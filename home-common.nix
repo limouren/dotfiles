@@ -38,6 +38,7 @@ in
     pkgs.cabextract
     pkgs.cachix
     pkgs.certbot
+    pkgs.claude-code
     pkgs.cloudflared
     pkgs.codex
     pkgs.colima

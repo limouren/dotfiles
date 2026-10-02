@@ -37,7 +37,6 @@ get_auto_updatable_packages() {
 	# List of packages that have opted-in for automatic updates
 	# Add package names here to enable auto-updates
 	cat <<EOF
-claude-code
 pi-coding-agent
 EOF
 }
