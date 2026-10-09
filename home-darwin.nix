@@ -10,6 +10,10 @@ let
 in
 
 {
+  imports = [ ./modules/dlsite-proxy ];
+
+  services.dlsiteProxy.enable = true;
+
   home.username = "limouren";
   home.homeDirectory = "/Users/limouren";
 

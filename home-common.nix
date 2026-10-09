@@ -118,6 +118,7 @@ in
     pkgs.wrangler
     pkgs.python3Packages.weasyprint
     pkgs.xh
+    pkgs.xray
     pkgs.zbar
     pkgs.zstd
 
