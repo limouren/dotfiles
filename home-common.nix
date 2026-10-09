@@ -16,6 +16,8 @@ let
 in
 
 {
+  imports = [ ./modules/pi ];
+
   home.file.".lnav/formats/installed/logcat_log.json".source = ./lnav-logcat.json;
   home.file.pass-completion = {
     target = ".config/fish/completions/pass.fish";
@@ -140,8 +142,6 @@ in
   # the Home Manager release notes for a list of state version
   # changes in each release.
   home.stateVersion = "25.05";
-
-  home.sessionVariables.PI_CACHE_RETENTION = "long";
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
