@@ -6,6 +6,8 @@
 }:
 
 let
+  herdr = (import ./packages { inherit pkgs; }).herdr-bin;
+
   passffJson = builtins.toJSON {
     name = "passff";
     description = "Host for communicating with zx2c4 pass";
@@ -41,6 +43,21 @@ in
 
   programs.fish.shellAliases = {
     lact = "flatpak run io.github.ilya_zlobintsev.LACT";
+  };
+
+  systemd.user.services.herdr = {
+    Unit.Description = "Herdr session server";
+    Service = {
+      # The store path changes with each herdr upgrade, so home-manager switch
+      # restarts the server on the new version.
+      ExecStart = "${lib.getExe herdr} server";
+      Restart = "on-failure";
+      WorkingDirectory = "%h";
+      Environment = [
+        "PATH=${config.home.profileDirectory}/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin"
+      ];
+    };
+    Install.WantedBy = [ "default.target" ];
   };
 
   # passff-host for Flatpak Firefox
