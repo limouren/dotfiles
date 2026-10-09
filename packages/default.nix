@@ -5,6 +5,7 @@
 {
   blackbox = pkgs.callPackage ./blackbox.nix { };
   gws-bin = pkgs.callPackage ./gws-bin.nix { };
+  herdr-bin = pkgs.callPackage ./herdr-bin { };
   kube-authgear-login = pkgs.callPackage ./kube-authgear-login.nix { };
   pi-coding-agent = pkgs.callPackage ./pi-coding-agent { };
 }
