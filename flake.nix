@@ -35,6 +35,21 @@
             inherit nix-env-fish;
           };
         };
+
+      mkBazzite =
+        username:
+        mkHome {
+          system = "x86_64-linux";
+          modules = [
+            nix-flatpak.homeManagerModules.nix-flatpak
+            ./home-common.nix
+            ./home-bazzite.nix
+            {
+              home.username = username;
+              home.homeDirectory = "/home/${username}";
+            }
+          ];
+        };
     in
     {
       homeConfigurations."limouren" = mkHome {
@@ -45,14 +60,8 @@
         ];
       };
 
-      homeConfigurations."bazzite" = mkHome {
-        system = "x86_64-linux";
-        modules = [
-          nix-flatpak.homeManagerModules.nix-flatpak
-          ./home-common.nix
-          ./home-bazzite.nix
-        ];
-      };
+      homeConfigurations."bazzite" = mkBazzite "bazzite";
+      homeConfigurations."limouren@bazzite" = mkBazzite "limouren";
 
       formatter.aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixfmt-tree;
       formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;

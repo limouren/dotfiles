@@ -21,9 +21,6 @@ let
 in
 
 {
-  home.username = "bazzite";
-  home.homeDirectory = "/home/bazzite";
-
   home.file.gpg-agent = {
     target = ".gnupg/gpg-agent.conf";
     text = ''
