@@ -23,3 +23,9 @@ end
 
 # Ensure local bin precedes nix profile
 set -g PATH $HOME/.local/bin $PATH
+
+# Pi disables inline images in herdr panes (earendil-works/pi#10573).
+# herdr forwards Kitty graphics, and this worked in a test, so turn them back on.
+if test "$TERM_PROGRAM" = herdr
+    set -gx PI_IMAGE_PROTOCOL kitty
+end
