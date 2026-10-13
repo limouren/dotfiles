@@ -112,6 +112,7 @@ in
     pkgs.supabase-cli
     pkgs.svgo
     pkgs.temurin-bin-21
+    pkgs.tig
     pkgs.tree
     pkgs.typescript
     pkgs.unrar
@@ -188,6 +189,21 @@ in
   };
 
   programs.gitui.enable = true;
+  programs.lazygit = {
+    enable = true;
+    # Use delta to show diffs with syntax highlighting.
+    # Press `|` in lazygit to cycle between renderers.
+    settings.git.diffRenderers = [
+      {
+        name = "delta";
+        command = "${pkgs.delta}/bin/delta --dark --paging=never";
+      }
+      {
+        type = "rawGit";
+        name = "default";
+      }
+    ];
+  };
 
   programs.direnv.enable = true;
   programs.direnv.nix-direnv.enable = true;
