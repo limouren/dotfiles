@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-# Source Nix environment for launchd
+# Source Nix environment for launchd and systemd
 if [[ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]]; then
     # Temporarily disable unbound variable check for nix-daemon.sh
     set +u
@@ -19,24 +19,37 @@ log() {
 }
 
 notify() {
-    local title="$1"
-    local message="$2"
-    local sound="${3:-Glass}"
-    
-    terminal-notifier -title "$title" -message "$message" -sound "$sound" \
-        -execute "open ~/Library/Logs/home-manager-sync.log"
+    local outcome="$1"
+    local title="$2"
+    local message="$3"
+
     log "NOTIFICATION: $title - $message"
+
+    case "$(uname -s)" in
+        Darwin)
+            local sound="Glass"
+            [[ "$outcome" == "failure" ]] && sound="Basso"
+            terminal-notifier -title "$title" -message "$message" -sound "$sound" \
+                -execute "open ~/Library/Logs/home-manager-sync.log"
+            ;;
+        Linux)
+            local urgency="normal"
+            [[ "$outcome" == "failure" ]] && urgency="critical"
+            notify-send --app-name="Home Manager Sync" --urgency="$urgency" \
+                "$title" "$message" || true
+            ;;
+    esac
 }
 
 main() {
     cd "$REPO_ROOT" || {
-        notify "Home Manager Sync Failed" "Failed to change to config directory" "Basso"
+        notify failure "Home Manager Sync Failed" "Failed to change to config directory"
         exit 1
     }
 
     log "Fetching latest changes from remote..."
     if ! git fetch origin; then
-        notify "Home Manager Sync Failed" "Failed to fetch from remote repository" "Basso"
+        notify failure "Home Manager Sync Failed" "Failed to fetch from remote repository"
         exit 1
     fi
 
@@ -53,18 +66,18 @@ main() {
 
     log "Pulling $behind commits..."
     if ! git pull origin "$current_branch"; then
-        notify "Home Manager Sync Failed" "Failed to pull changes from remote" "Basso"
+        notify failure "Home Manager Sync Failed" "Failed to pull changes from remote"
         exit 1
     fi
 
     log "Switching Home Manager configuration..."
     if ! home-manager switch; then
-        notify "Home Manager Sync Failed" "home-manager switch failed" "Basso"
+        notify failure "Home Manager Sync Failed" "home-manager switch failed"
         exit 1
     fi
 
     log "Sync complete!"
-    notify "Home Manager Sync" "Successfully updated with $behind commits" "Glass"
+    notify success "Home Manager Sync" "Successfully updated with $behind commits"
 }
 
 if [[ "${BASH_SOURCE[0]:-}" == "${0}" ]]; then

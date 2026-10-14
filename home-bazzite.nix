@@ -8,6 +8,17 @@
 let
   herdr = (import ./packages { inherit pkgs; }).herdr-bin;
 
+  herdrUpgrade = pkgs.writeShellApplication {
+    name = "herdr-upgrade";
+    runtimeInputs = [
+      pkgs.jq
+      pkgs.procps
+    ];
+    text = builtins.readFile ./scripts/herdr-upgrade.sh;
+  };
+
+  hostServicePath = "PATH=${config.home.profileDirectory}/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin";
+
   passffJson = builtins.toJSON {
     name = "passff";
     description = "Host for communicating with zx2c4 pass";
@@ -46,18 +57,64 @@ in
   };
 
   systemd.user.services.herdr = {
-    Unit.Description = "Herdr session server";
+    Unit = {
+      Description = "Herdr session server";
+      # A restart kills every pane. herdr-upgrade hands off to the new version instead.
+      X-SwitchMethod = "keep-old";
+    };
     Service = {
-      # The store path changes with each herdr upgrade, so home-manager switch
-      # restarts the server on the new version.
       ExecStart = "${lib.getExe herdr} server";
+      # A live handoff replaces the main process with a new server in the cgroup.
+      ExitType = "cgroup";
       Restart = "on-failure";
       WorkingDirectory = "%h";
-      Environment = [
-        "PATH=${config.home.profileDirectory}/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin"
-      ];
+      Environment = [ hostServicePath ];
     };
     Install.WantedBy = [ "default.target" ];
+  };
+
+  systemd.user.services.herdr-upgrade = {
+    Unit.Description = "Move herdr to the current version without killing panes";
+    Service = {
+      Type = "oneshot";
+      ExecStart = lib.getExe herdrUpgrade;
+      # May wait for all panes to become idle.
+      TimeoutStartSec = "infinity";
+      Environment = [
+        hostServicePath
+        "HERDR_BIN=${lib.getExe herdr}"
+      ];
+    };
+  };
+
+  # A separate unit, so the handoff does not depend on the switch process,
+  # which may run inside a herdr pane.
+  home.activation.herdrUpgrade = lib.hm.dag.entryAfter [ "reloadSystemd" ] ''
+    run env XDG_RUNTIME_DIR="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}" \
+      ${pkgs.systemd}/bin/systemctl --user start --no-block herdr-upgrade.service \
+      || warnEcho "Could not start herdr-upgrade.service"
+  '';
+
+  systemd.user.services.home-manager-sync = {
+    Unit = {
+      Description = "Pull and switch Home Manager configuration";
+      # The service runs home-manager switch, which must not restart it.
+      X-SwitchMethod = "keep-old";
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${config.home.homeDirectory}/.config/home-manager/scripts/sync-and-switch.sh";
+      Environment = [ hostServicePath ];
+    };
+  };
+
+  systemd.user.timers.home-manager-sync = {
+    Unit.Description = "Pull and switch Home Manager configuration hourly";
+    Timer = {
+      OnCalendar = "hourly";
+      Persistent = true;
+    };
+    Install.WantedBy = [ "timers.target" ];
   };
 
   # passff-host for Flatpak Firefox
