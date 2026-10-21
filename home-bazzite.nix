@@ -17,6 +17,12 @@ let
     text = builtins.readFile ./scripts/herdr-upgrade.sh;
   };
 
+  codeLink = pkgs.writeShellApplication {
+    name = "code";
+    runtimeInputs = [ pkgs.coreutils ];
+    text = builtins.readFile ./scripts/code-link.sh;
+  };
+
   hostServicePath = "PATH=${config.home.profileDirectory}/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin";
 
   passffJson = builtins.toJSON {
@@ -55,6 +61,8 @@ in
   programs.fish.shellAliases = {
     lact = "flatpak run io.github.ilya_zlobintsev.LACT";
   };
+
+  home.packages = [ codeLink ];
 
   systemd.user.services.herdr = {
     Unit = {
