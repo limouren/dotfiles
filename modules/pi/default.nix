@@ -58,8 +58,8 @@ in
           "git:github.com/earendil-works/pi-review"
         ];
         enabledModels = [
-          "openai-codex/gpt-6-astra"
-          "anthropic/claude-opus-5-5"
+          "anthropic/claude-opus-5-5:high"
+          "openai/gpt-6.1-sol:high"
         ];
         hideThinkingBlock = false;
         terminal.showTerminalProgress = true;
