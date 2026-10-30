@@ -64,7 +64,13 @@ in
 
   home.packages = [ codeLink ];
 
-  services.rex.enable = true;
+  services.rex = {
+    enable = true;
+    tailscale = {
+      enable = true;
+      hostname = "rex-bazzite";
+    };
+  };
   # programs.rex adds its ssh guard to ~/.ssh/config only when home-manager writes that file.
   programs.ssh = {
     enable = true;
