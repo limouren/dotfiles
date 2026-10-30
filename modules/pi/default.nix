@@ -46,7 +46,6 @@ in
       package = null;
 
       declaredSettings = {
-        theme = "catppuccin-frappe";
         tuiMode = "regular";
         defaultProvider = "anthropic";
         defaultModel = "claude-opus-5-5";
@@ -79,11 +78,6 @@ in
     # force: replace the hand-made files and links from before home-manager.
     home.file = {
       "${agentDir}/models.json".force = true;
-      "${agentDir}/themes" = {
-        source = ./themes;
-        recursive = true;
-        force = true;
-      };
       "${agentDir}/AGENTS.md" = {
         source = linkToAgentThings ".meta/global/AGENTS.md";
         force = true;

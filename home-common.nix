@@ -156,6 +156,8 @@ in
     }
   ];
   programs.fish.shellInit = builtins.readFile ./fish-init.fish;
+  programs.fish.interactiveShellInit = "fish_config theme choose merino";
+  home.file.".config/fish/themes/merino.theme".source = ./fish-merino.theme;
 
   programs.starship.enable = true;
   programs.starship.enableFishIntegration = true;
