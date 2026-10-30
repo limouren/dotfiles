@@ -60,4 +60,26 @@ in
       StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/home-manager-sync.log";
     };
   };
+
+  launchd.agents.agent-taste-mine = {
+    enable = true;
+    config = {
+      ProgramArguments = [
+        "${config.home.homeDirectory}/agent-things/taste/run.sh"
+        "mine"
+      ];
+      EnvironmentVariables = {
+        PATH = "${config.home.profileDirectory}/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin";
+        TASTE_HOST = "mac";
+      };
+      StartCalendarInterval = [
+        {
+          Hour = 3;
+          Minute = 0;
+        }
+      ];
+      StandardOutPath = "${config.home.homeDirectory}/Library/Logs/agent-taste.log";
+      StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/agent-taste.log";
+    };
+  };
 }

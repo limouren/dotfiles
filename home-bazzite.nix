@@ -125,6 +125,50 @@ in
     Install.WantedBy = [ "timers.target" ];
   };
 
+  systemd.user.services.agent-taste-mine = {
+    Unit.Description = "Add new pi replies to the taste repository";
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${config.home.homeDirectory}/agent-things/taste/run.sh mine";
+      Environment = [
+        hostServicePath
+        "TASTE_HOST=bazzite"
+      ];
+    };
+  };
+
+  systemd.user.timers.agent-taste-mine = {
+    Unit.Description = "Mine pi replies daily";
+    Timer = {
+      OnCalendar = "*-*-* 03:00";
+      Persistent = true;
+    };
+    Install.WantedBy = [ "timers.target" ];
+  };
+
+  systemd.user.services.agent-taste-judge = {
+    Unit.Description = "Update AGENTS.md from pending pi replies";
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${config.home.homeDirectory}/agent-things/taste/run.sh judge";
+      # Each batch of replies takes minutes, and a backlog has many batches.
+      TimeoutStartSec = "infinity";
+      Environment = [
+        hostServicePath
+        "TASTE_HOST=bazzite"
+      ];
+    };
+  };
+
+  systemd.user.timers.agent-taste-judge = {
+    Unit.Description = "Judge pi replies weekly";
+    Timer = {
+      OnCalendar = "Mon 04:00";
+      Persistent = true;
+    };
+    Install.WantedBy = [ "timers.target" ];
+  };
+
   # passff-host for Flatpak Firefox
   home.activation.passff-host = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         run mkdir -p "${config.home.homeDirectory}/.var/app/org.mozilla.firefox/.mozilla/native-messaging-hosts"
