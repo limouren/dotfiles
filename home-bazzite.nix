@@ -64,6 +64,14 @@ in
 
   home.packages = [ codeLink ];
 
+  # The login shell stays bash for ssh commands, so only interactive shells switch to fish.
+  # SHLVL 1 limits the switch to the top-level shell, so a nested bash stays bash.
+  home.file.".bashrc.d/fish".text = ''
+    if [[ $- == *i* && $SHLVL -eq 1 ]]; then
+        exec /usr/bin/fish --login
+    fi
+  '';
+
   services.rex = {
     enable = true;
     tailscale = {
