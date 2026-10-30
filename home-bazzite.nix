@@ -64,6 +64,13 @@ in
 
   home.packages = [ codeLink ];
 
+  services.rex.enable = true;
+  # programs.rex adds its ssh guard to ~/.ssh/config only when home-manager writes that file.
+  programs.ssh = {
+    enable = true;
+    enableDefaultConfig = false;
+  };
+
   systemd.user.services.herdr = {
     Unit = {
       Description = "Herdr session server";

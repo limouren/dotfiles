@@ -12,6 +12,10 @@
       flake = false;
     };
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
+    rex = {
+      url = "https://pkgs.superlogical.com/rex/nix/snapshot.tar.gz";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -20,6 +24,7 @@
       home-manager,
       nix-env-fish,
       nix-flatpak,
+      rex,
       ...
     }:
     let
@@ -42,6 +47,7 @@
           system = "x86_64-linux";
           modules = [
             nix-flatpak.homeManagerModules.nix-flatpak
+            rex.homeManagerModules.default
             ./home-common.nix
             ./home-bazzite.nix
             {
