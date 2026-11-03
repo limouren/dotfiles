@@ -217,7 +217,7 @@ local function desired_label(session_id, view)
     end
   end
   if winner.key == "~" then
-    return nil
+    return "~"
   end
   return project_label(winner.info)
 end
