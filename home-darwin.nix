@@ -61,6 +61,26 @@ in
     };
   };
 
+  # rex.on handlers in init.lua need a later Rex, so they run as a script.
+  launchd.agents.rex-auto-label = {
+    enable = true;
+    config = {
+      ProgramArguments = [
+        "${config.home.homeDirectory}/Library/Application Support/com.superlogical.rex/RexServer/Versions/Current/Rex Server.app/Contents/MacOS/rex"
+        "do"
+        "--autostart=false"
+        "${./rex/auto-label.lua}"
+        "--all"
+      ];
+      EnvironmentVariables.PATH = "${config.home.profileDirectory}/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin";
+      # Rex Beta.app starts the server, which may come up after login.
+      KeepAlive = true;
+      ThrottleInterval = 30;
+      StandardOutPath = "${config.home.homeDirectory}/Library/Logs/rex-auto-label.log";
+      StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/rex-auto-label.log";
+    };
+  };
+
   launchd.agents.agent-taste-mine = {
     enable = true;
     config = {

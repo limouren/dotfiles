@@ -52,8 +52,10 @@ local function basename(path)
   return path:match("([^/]+)/*$") or path
 end
 
+-- macOS realpath has no -e, so resolve with pwd -P, which fails for a
+-- missing directory.
 local function realpath(path)
-  local r = rex.exec({ "realpath", "-e", path }, { timeout = 5 })
+  local r = rex.exec({ "pwd", "-P" }, { cwd = path, timeout = 5 })
   if r and r.ok then
     return trim(r.stdout)
   end
