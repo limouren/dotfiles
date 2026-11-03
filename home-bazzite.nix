@@ -79,6 +79,19 @@ in
       hostname = "rex-bazzite";
     };
   };
+  # rex.on handlers in init.lua need a later Rex, so they run as a script.
+  systemd.user.services.rex-auto-label = {
+    Unit = {
+      Description = "Label Rex sessions after their project";
+      After = [ "rex.service" ];
+      PartOf = [ "rex.service" ];
+    };
+    Service = {
+      ExecStart = "${lib.getExe config.services.rex.package} do ${./rex/auto-label.lua} --all";
+      Restart = "on-failure";
+    };
+    Install.WantedBy = [ "rex.service" ];
+  };
   # programs.rex adds its ssh guard to ~/.ssh/config only when home-manager writes that file.
   programs.ssh = {
     enable = true;
