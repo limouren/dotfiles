@@ -89,6 +89,8 @@ in
     Service = {
       ExecStart = "${lib.getExe config.services.rex.package} do ${./rex/auto-label.lua} --all";
       Restart = "on-failure";
+      # rex do exits with 130 when systemd stops it with SIGTERM.
+      SuccessExitStatus = 130;
     };
     Install.WantedBy = [ "rex.service" ];
   };
