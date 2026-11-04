@@ -94,6 +94,23 @@ in
     };
     Install.WantedBy = [ "rex.service" ];
   };
+  systemd.user.services.rex-notify = {
+    Unit = {
+      Description = "Rex phone notifications through ntfy";
+      After = [ "rex.service" ];
+      BindsTo = [ "rex.service" ];
+    };
+    Service = {
+      # The topic stays out of this public repo, because anyone who knows it can read the notifications.
+      EnvironmentFile = "%h/.config/rex/notify.env";
+      ExecStart = "${lib.getExe config.services.rex.package} do --autostart=false --all ${./rex/notify.lua} topic=\${NTFY_TOPIC}";
+      Restart = "always";
+      RestartSec = 10;
+      # rex do exits with 130 when systemd stops it with SIGTERM.
+      SuccessExitStatus = 130;
+    };
+    Install.WantedBy = [ "rex.service" ];
+  };
   # programs.rex adds its ssh guard to ~/.ssh/config only when home-manager writes that file.
   programs.ssh = {
     enable = true;
