@@ -111,6 +111,9 @@ in
     };
     Install.WantedBy = [ "rex.service" ];
   };
+  home.activation.rexSkill = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run ${lib.getExe config.programs.rex.package} skill setup
+  '';
   # programs.rex adds its ssh guard to ~/.ssh/config only when home-manager writes that file.
   programs.ssh = {
     enable = true;

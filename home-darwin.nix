@@ -7,6 +7,8 @@
 
 let
   pinentry = pkgs.pinentry_mac;
+  # home-manager doesn't manage rex on Mac
+  rexApp = "${config.home.homeDirectory}/Library/Application Support/com.superlogical.rex/RexServer/Versions/Current/Rex Server.app/Contents/MacOS/rex";
 in
 
 {
@@ -61,12 +63,18 @@ in
     };
   };
 
+  home.activation.rexSkill = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if [[ -x ${lib.escapeShellArg rexApp} ]]; then
+      run ${lib.escapeShellArg rexApp} skill setup
+    fi
+  '';
+
   # rex.on handlers in init.lua need a later Rex, so they run as a script.
   launchd.agents.rex-auto-label = {
     enable = true;
     config = {
       ProgramArguments = [
-        "${config.home.homeDirectory}/Library/Application Support/com.superlogical.rex/RexServer/Versions/Current/Rex Server.app/Contents/MacOS/rex"
+        rexApp
         "do"
         "--autostart=false"
         "${./rex/auto-label.lua}"
