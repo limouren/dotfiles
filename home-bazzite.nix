@@ -6,16 +6,7 @@
 }:
 
 let
-  herdr = (import ./packages { inherit pkgs; }).herdr-bin;
-
-  herdrUpgrade = pkgs.writeShellApplication {
-    name = "herdr-upgrade";
-    runtimeInputs = [
-      pkgs.jq
-      pkgs.procps
-    ];
-    text = builtins.readFile ./scripts/herdr-upgrade.sh;
-  };
+  herdrCore = (import ./packages { inherit pkgs; }).herdr-core-bin;
 
   codeLink = pkgs.writeShellApplication {
     name = "code";
@@ -120,43 +111,15 @@ in
     enableDefaultConfig = false;
   };
 
-  systemd.user.services.herdr = {
-    Unit = {
-      Description = "Herdr session server";
-      # A restart kills every pane. herdr-upgrade hands off to the new version instead.
-      X-SwitchMethod = "keep-old";
-    };
-    Service = {
-      ExecStart = "${lib.getExe herdr} server";
-      # A live handoff replaces the main process with a new server in the cgroup.
-      ExitType = "cgroup";
-      Restart = "on-failure";
-      WorkingDirectory = "%h";
-      Environment = [ hostServicePath ];
-    };
-    Install.WantedBy = [ "default.target" ];
-  };
-
-  systemd.user.services.herdr-upgrade = {
-    Unit.Description = "Move herdr to the current version without killing panes";
-    Service = {
-      Type = "oneshot";
-      ExecStart = lib.getExe herdrUpgrade;
-      # May wait for all panes to become idle.
-      TimeoutStartSec = "infinity";
-      Environment = [
-        hostServicePath
-        "HERDR_BIN=${lib.getExe herdr}"
-      ];
-    };
-  };
-
-  # A separate unit, so the handoff does not depend on the switch process,
-  # which may run inside a herdr pane.
-  home.activation.herdrUpgrade = lib.hm.dag.entryAfter [ "reloadSystemd" ] ''
-    run env XDG_RUNTIME_DIR="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}" \
-      ${pkgs.systemd}/bin/systemctl --user start --no-block herdr-upgrade.service \
-      || warnEcho "Could not start herdr-upgrade.service"
+  # hc starts its core on demand, so only a running core of another version needs a restart.
+  # Terminals run in their own systemd units and keep running.
+  home.activation.herdrCoreRestart = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if [[ -S "''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/herdr-core/default.sock" ]] \
+      && running=$(${lib.getExe herdrCore} server status --json | ${lib.getExe pkgs.jq} -r .version) \
+      && [[ $running != "${herdrCore.version}" ]]; then
+      run ${lib.getExe herdrCore} server restart \
+        || warnEcho "Could not restart the herdr-core core"
+    fi
   '';
 
   systemd.user.services.home-manager-sync = {

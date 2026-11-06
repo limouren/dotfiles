@@ -37,7 +37,7 @@ get_auto_updatable_packages() {
 	# List of packages that have opted-in for automatic updates
 	# Add package names here to enable auto-updates
 	cat <<EOF
-herdr-bin
+herdr-core-bin
 pi-coding-agent
 EOF
 }

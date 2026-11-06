@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Update hashes.json to the latest stable herdr release.
+# Update hashes.json to the latest herdr-core release.
 # The asset name for each system is read from hashes.json, so add a new
 # system there first, then run this script.
 
@@ -8,14 +8,13 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HASHES_FILE="$SCRIPT_DIR/hashes.json"
-REPO="herdrdev/herdr"
+RELEASES="https://releases.herdr.dev/core"
 
 current_version=$(jq -r '.version' "$HASHES_FILE")
-latest_tag=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" | jq -r '.tag_name')
-latest_version="${latest_tag#v}"
+latest_version=$(curl -fsSL "$RELEASES/latest.json" | jq -r '.version')
 
 if [[ -z "$latest_version" || "$latest_version" == "null" ]]; then
-	echo "Error: could not read the latest release of $REPO" >&2
+	echo "Error: could not read the latest herdr-core release" >&2
 	exit 1
 fi
 
@@ -29,7 +28,7 @@ fi
 updated=$(jq --arg version "$latest_version" '.version = $version' "$HASHES_FILE")
 
 while IFS=$'\t' read -r system asset_name; do
-	url="https://github.com/$REPO/releases/download/$latest_tag/$asset_name"
+	url="$RELEASES/$latest_version/herdr-core-$asset_name.tar.gz"
 	echo "Prefetching $system: $url"
 	hash=$(nix store prefetch-file --json "$url" | jq -r '.hash')
 	updated=$(jq --arg system "$system" --arg hash "$hash" \
