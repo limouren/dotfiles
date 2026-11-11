@@ -65,6 +65,7 @@ in
     (pkgs.wrapHelm pkgs.kubernetes-helm {
       plugins = [ pkgs.kubernetes-helmPlugins.helm-secrets ];
     })
+    pkgs.python3Packages.huggingface-hub
     pkgs.imagemagick
     pkgs.mitmproxy
     pkgs.innoextract
