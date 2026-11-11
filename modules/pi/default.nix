@@ -55,6 +55,7 @@ in
           "git:github.com/schpet/linear-cli@v2.1.1"
           "npm:@injaneity/pi-computer-use"
           "git:github.com/earendil-works/pi-review"
+          "git:git@github.com:chimapp/chimpact"
         ];
         enabledModels = [
           "anthropic/claude-opus-5-5:high"
