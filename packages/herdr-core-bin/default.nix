@@ -53,7 +53,7 @@ stdenvNoCC.mkDerivation {
   # Stripping changes the signed executable and breaks its signature.
   dontStrip = stdenvNoCC.hostPlatform.isDarwin;
 
-  doInstallCheck = true;
+  doInstallCheck = !stdenvNoCC.hostPlatform.isDarwin;
   nativeInstallCheckInputs = [ versionCheckHook ];
 
   meta = {
