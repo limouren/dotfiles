@@ -73,6 +73,7 @@ in
     pkgs.libcaca
     pkgs.libcaca.dev
     pkgs.lnav
+    pkgs.mcat
     pkgs.mpv
     pkgs.nginx
     pkgs.nixfmt
