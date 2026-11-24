@@ -24,6 +24,15 @@ let
     text = builtins.readFile ./merge-settings.sh;
   };
 
+  # Work around upstream agy_acp_server 1.4.2+ writing
+  # skills/system/run-workflow/SKILL.md into cwd on every session/new.
+  # Note: setting AGY_ACP_BIN disables pi-antigravity-acp-provider's automatic
+  # runtime updates; unset AGY_ACP_BIN once to pull a newer managed server.
+  agyAcpWrapper = pkgs.writeScript "agy-acp-wrapper.mjs" ''
+    #!${lib.getExe pkgs.nodejs}
+    ${builtins.readFile ./agy-acp-wrapper.mjs}
+  '';
+
   declaredSettingsFile = jsonFormat.generate "pi-declared-settings.json" cfg.declaredSettings;
   previousDeclaredSettingsFile = "${config.xdg.stateHome}/pi-coding-agent/declared-settings.json";
 in
@@ -84,7 +93,10 @@ in
       };
     };
 
-    home.sessionVariables.PI_CACHE_RETENTION = "long";
+    home.sessionVariables = {
+      PI_CACHE_RETENTION = "long";
+      AGY_ACP_BIN = "${agyAcpWrapper}";
+    };
 
     # force: replace the hand-made files and links from before home-manager.
     home.file = {
