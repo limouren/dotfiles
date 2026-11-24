@@ -195,12 +195,13 @@ in
   programs.gitui.enable = true;
   programs.lazygit = {
     enable = true;
-    # Use delta to show diffs with syntax highlighting.
     # Press `|` in lazygit to cycle between renderers.
+    # `--no-pager` stops riff from spawning less in lazygit's dumb PTY;
+    # `--color=on` preserves colors if lazygit falls back to a pipe.
     settings.git.diffRenderers = [
       {
-        name = "delta";
-        command = "${pkgs.delta}/bin/delta --dark --paging=never";
+        name = "riff";
+        command = "${config.programs.riff.package}/bin/riff --color=on --no-pager";
       }
       {
         type = "rawGit";
