@@ -54,12 +54,15 @@ in
         packages = [
           "git:github.com/schpet/linear-cli@v2.1.1"
           "npm:@injaneity/pi-computer-use"
+          "npm:pi-antigravity-acp-provider"
           "git:github.com/earendil-works/pi-review"
           "git:git@github.com:chimapp/chimpact"
         ];
         enabledModels = [
           "anthropic/claude-opus-5-5:high"
           "openai/gpt-6.1-sol:high"
+          "antigravity-acp/gemini-4-carbon:high"
+          "antigravity-acp/gemini-4-neon:high"
         ];
         hideThinkingBlock = false;
         terminal.showTerminalProgress = true;
@@ -71,6 +74,13 @@ in
       models.providers.anthropic.modelOverrides = {
         claude-opus-5.contextWindow = 200000;
         claude-opus-5-5.contextWindow = 200000;
+      };
+
+      models.providers.antigravity-acp.modelOverrides = {
+        gemini-4-neon.contextWindow = 256000;
+        gemini-4-carbon.contextWindow = 256000;
+        gemini-4-argon.contextWindow = 256000;
+        gemini-4-hydrogen.contextWindow = 256000;
       };
     };
 
